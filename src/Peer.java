@@ -27,6 +27,7 @@ public class Peer {
         while (!peers.isEmpty()) {
             try {
                 Socket socket = new Socket(peers.get(peerIndex).hostname, peers.get(peerIndex).listeningPort);
+                peers.remove(peerIndex);
             }
             catch (ConnectException e) {
                 peerIndex++;
