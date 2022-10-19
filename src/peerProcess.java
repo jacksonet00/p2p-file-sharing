@@ -15,10 +15,10 @@ public class peerProcess {
         File peerInfoConfig = new File("PeerInfo.cfg");
         File commonConfig = new File("Common.cfg");
 
-        List<Peer> peers = new ArrayList<Peer>();
+        List<PeerData> peers = new ArrayList<PeerData>();
        
         Scanner commonScanner = new Scanner(commonConfig);
-        // Read in Client parameters from Common cfg
+        // Read in Peer parameters from Common cfg
         int numPreferredNeighbors = Integer.parseInt(commonScanner.nextLine().split(" ")[1]);
         int unchokingInterval = Integer.parseInt(commonScanner.nextLine().split(" ")[1]);
         int optimisticUnchokingInterval = Integer.parseInt(commonScanner.nextLine().split(" ")[1]);
@@ -27,7 +27,7 @@ public class peerProcess {
         int pieceSize = Integer.parseInt(commonScanner.nextLine().split(" ")[1]);
         commonScanner.close();
 
-        Client client = new Client(numPreferredNeighbors, unchokingInterval, optimisticUnchokingInterval, fileName, fileSize, pieceSize);
+        Peer peer = new Peer(numPreferredNeighbors, unchokingInterval, optimisticUnchokingInterval, fileName, fileSize, pieceSize);
 
         Scanner peerInfoScanner = new Scanner(peerInfoConfig);
         // Initialize peer table by reading PeerInfo.cfg
@@ -35,17 +35,17 @@ public class peerProcess {
             String record = peerInfoScanner.nextLine();
             String[] entries = record.split(" ");
 
-            Peer peer = new Peer(Integer.parseInt(entries[0]), entries[1], Integer.parseInt(entries[2]), Integer.parseInt(entries[3]) == 1);
+            PeerData peerData = new PeerData(Integer.parseInt(entries[0]), entries[1], Integer.parseInt(entries[2]), Integer.parseInt(entries[3]) == 1);
 
-            client.peerTable.put(peer.id, peer);
+            peer.peerDataTable.put(peerData.id, peerData);
 
-            if (peerId != peer.id) {
-                peers.add(peer);
+            if (peerId != peerData.id) {
+                peers.add(peerData);
             }
         }
         peerInfoScanner.close();
 
-        client.peerTable.get(peerId).init();
-        client.peerTable.get(peerId).connectToPeers(peers);
+        // peer.peerDataTable.get(peerId).init();
+        // peer.peerDataTable.get(peerId).connectToPeers(peers);
     }
 }
