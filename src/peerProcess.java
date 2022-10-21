@@ -45,6 +45,8 @@ public class peerProcess {
         }
         peerInfoScanner.close();
 
+        peer.run();
+
         // peer.peerDataTable.get(peerId).init();
         // peer.peerDataTable.get(peerId).connectToPeers(peers);
     }
