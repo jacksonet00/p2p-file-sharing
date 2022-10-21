@@ -5,6 +5,9 @@ import java.net.*;
 public class Server {
     private ServerSocket serverSocket;
     
+    public Server(ServerSocket listening) {
+        this.serverSocket = listening;
+    }
 
     public void start(int listeningPort) {
         try {
@@ -88,14 +91,17 @@ public class Server {
 				}
 			}
         }
+        
 
+        // Account for sending messages back logic.
+        // This is NOT the way we send messages from our peer when we want our peer to initialize messages!!! This is only for responses
         public void sendMessage(byte[] message)
 		{
 			try{
-				out.writeObject(message);
+				out.write(message);
 				out.flush();
 			}
-			catch(IOException ioException){
+			catch(IOException ioException){ 
 				ioException.printStackTrace();
 			}
 		}
