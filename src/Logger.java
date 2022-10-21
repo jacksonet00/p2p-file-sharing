@@ -3,11 +3,14 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class Logger {
+public class Logger 
+{
 
-    public class LoggerUtil {
+    public class LoggerUtil 
+    {
 
-        public static String idListToCsv(List<Integer> idList) {
+        public static String idListToCsv(List<Integer> idList) 
+        {
             StringBuilder csv = new StringBuilder();
 
             for (int i = 0; i < idList.size() - 1; i++) {
@@ -19,7 +22,8 @@ public class Logger {
         }
     }
     
-    public static void logTcpConnectionIniated(int srcPeerId, int destPeerId) throws IOException {
+    public static void logTcpConnectionIniated(int srcPeerId, int destPeerId) throws IOException 
+    {
         FileWriter logger = new FileWriter("./logs/log_peer_" + Integer.toString(srcPeerId) + ".log");
 
         logger.write("[" + LocalDateTime.now() + "]: Peer [" 
@@ -28,7 +32,8 @@ public class Logger {
         logger.close();
     }
 
-    public static void logTcpConnectionIncoming(int srcPeerId, int destPeerId) throws IOException {
+    public static void logTcpConnectionIncoming(int srcPeerId, int destPeerId) throws IOException 
+    {
         FileWriter logger = new FileWriter("./logs/log_peer_" + Integer.toString(srcPeerId) + ".log");
 
         logger.write("[" + LocalDateTime.now() + "]: Peer [" 
@@ -37,7 +42,8 @@ public class Logger {
         logger.close();
     }
 
-    public static void logChangePerferredNeighbors(int peerId, List<Integer> preferredNeighborIdList) throws IOException {
+    public static void logChangePerferredNeighbors(int peerId, List<Integer> preferredNeighborIdList) throws IOException 
+    {
         FileWriter logger = new FileWriter("./logs/log_peer_" + Integer.toString(peerId) + ".log");
 
         logger.write("[" + LocalDateTime.now() + "]: Peer [" 
@@ -46,7 +52,8 @@ public class Logger {
         logger.close();
     }
 
-    public static void logChangeOptimisticallyUnchokedNeighbor(int srcPeerId, int neighborPeerId) throws IOException {
+    public static void logChangeOptimisticallyUnchokedNeighbor(int srcPeerId, int neighborPeerId) throws IOException 
+    {
         FileWriter logger = new FileWriter("./logs/log_peer_" + Integer.toString(srcPeerId) + ".log");
 
         logger.write("[" + LocalDateTime.now() + "]: Peer [" 
@@ -55,7 +62,8 @@ public class Logger {
         logger.close();
     }
 
-    public static void logUnchokedNeighbor(int srcPeerId, int neighborPeerId) throws IOException {
+    public static void logUnchokedNeighbor(int srcPeerId, int neighborPeerId) throws IOException 
+    {
         FileWriter logger = new FileWriter("./logs/log_peer_" + Integer.toString(srcPeerId) + ".log");
 
         logger.write("[" + LocalDateTime.now() + "]: Peer [" 
@@ -64,7 +72,8 @@ public class Logger {
         logger.close();
     }
 
-    public static void logChokeNeighbor(int srcPeerId, int neighborPeerId) throws IOException {
+    public static void logChokeNeighbor(int srcPeerId, int neighborPeerId) throws IOException 
+    {
         FileWriter logger = new FileWriter("./logs/log_peer_" + Integer.toString(srcPeerId) + ".log");
 
         logger.write("[" + LocalDateTime.now() + "]: Peer [" 
@@ -73,7 +82,8 @@ public class Logger {
         logger.close();
     }
 
-    public static void logReceiveHaveMessage(int srcPeerId, int destPeerId) throws IOException {
+    public static void logReceiveHaveMessage(int srcPeerId, int destPeerId) throws IOException 
+    {
         FileWriter logger = new FileWriter("./logs/log_peer_" + Integer.toString(srcPeerId) + ".log");
 
         logger.write("[" + LocalDateTime.now() + "]: Peer [" 
@@ -82,7 +92,8 @@ public class Logger {
         logger.close();
     }
 
-    public static void logReceiveInterestedMessage(int srcPeerId, int destPeerId) throws IOException {
+    public static void logReceiveInterestedMessage(int srcPeerId, int destPeerId) throws IOException 
+    {
         FileWriter logger = new FileWriter("./logs/log_peer_" + Integer.toString(srcPeerId) + ".log");
 
         logger.write("[" + LocalDateTime.now() + "]: Peer [" 
@@ -91,7 +102,8 @@ public class Logger {
         logger.close();
     }
 
-    public static void logNotReceiveInterestedMessage(int srcPeerId, int destPeerId) throws IOException {
+    public static void logNotReceiveInterestedMessage(int srcPeerId, int destPeerId) throws IOException
+    {
         FileWriter logger = new FileWriter("./logs/log_peer_" + Integer.toString(srcPeerId) + ".log");
 
         logger.write("[" + LocalDateTime.now() + "]: Peer [" 
@@ -100,7 +112,8 @@ public class Logger {
         logger.close();
     }
 
-    public static void logDownloadedPiece(int srcPeerId, int destPeerId, int pieceId, int pieceCount) throws IOException {
+    public static void logDownloadedPiece(int srcPeerId, int destPeerId, int pieceId, int pieceCount) throws IOException 
+    {
         FileWriter logger = new FileWriter("./logs/log_peer_" + Integer.toString(srcPeerId) + ".log");
 
         logger.write("[" + LocalDateTime.now() + "]: Peer [" 
@@ -111,7 +124,8 @@ public class Logger {
         logger.close();
     }
 
-    public static void logDownloadComplete(int peerId) throws IOException {
+    public static void logDownloadComplete(int peerId) throws IOException 
+    {
         FileWriter logger = new FileWriter("./logs/log_peer_" + Integer.toString(peerId) + ".log");
 
         logger.write("[" + LocalDateTime.now() + "]: Peer [" 

@@ -2,63 +2,80 @@ import java.io.*;
 import java.net.*;
 
 
-public class Server {
+public class Server 
+{
     private ServerSocket serverSocket;
     
     public Server(ServerSocket listening) {
         this.serverSocket = listening;
     }
 
-    public void start(int listeningPort) {
-        try {
+    public void start(int listeningPort) 
+    {
+        try 
+        {
             serverSocket = new ServerSocket(listeningPort);
-        } catch(IOException ex){
+        } 
+        catch(IOException ex){
 
         }
         while (true)
-            try {
+            try 
+            {
                 // Create and start response hander thread once a connection is made
                 new ResponseHandler(serverSocket.accept()).start();
-            } catch (IOException ex) {
+            } 
+            catch (IOException ex) 
+            {
             }
             
     }
 
-    public void stop() {
-        try {
+    public void stop() 
+    {
+        try 
+        {
             serverSocket.close();
-        } catch (IOException ex) {
+        } 
+        catch (IOException ex) 
+        {
             
         }
         
     }
 
-    private static class ResponseHandler extends Thread {
+    private static class ResponseHandler extends Thread 
+    {
         private Socket clientSocket;
         private ObjectInputStream in; //stream read from the socket
         private ObjectOutputStream out;
         int peerID;
 
-        public ResponseHandler(Socket socket) {
+        public ResponseHandler(Socket socket) 
+        {
             this.clientSocket = socket;
         }
 
-        public void run() {
-            try {
+        public void run() 
+        {
+            try 
+            {
                 out = new ObjectOutputStream(clientSocket.getOutputStream());
                 out.flush();
                 in = new ObjectInputStream(clientSocket.getInputStream());
 
-                try{
-
+                try
+                {
                     // anticipate TCP handshake
-                    try {
+                    try 
+                    {
                         // byte[] handshake = in.readNBytes(32);
                         String header = new String(in.readNBytes(18));
                         byte[] zeros = in.readNBytes(10);
                         int peerID = in.readInt();
                         this.peerID = peerID;
-                    } catch(IOException ex) {
+                    } catch(IOException ex) 
+                    {
 
                     }
 
@@ -72,21 +89,26 @@ public class Server {
 						// sendMessage(payload);
 					}
 				}
-				catch(IOException ex){
+				catch(IOException ex)
+                {
 						System.err.println("Data received in unknown format");
 					}
             }
-            catch(IOException ioException){
+            catch(IOException ioException)
+            {
 				System.out.println("Disconnect with Client ");
 			}
-			finally{
+			finally
+            {
 				// Close connections
-				try{
+				try
+                {
 					in.close();
 					out.close();
 					clientSocket.close();
 				}
-				catch(IOException ioException){
+				catch(IOException ioException)
+                {
 					System.out.println("Disconnect with Client ");
 				}
 			}
@@ -97,11 +119,13 @@ public class Server {
         // This is NOT the way we send messages from our peer when we want our peer to initialize messages!!! This is only for responses
         public void sendMessage(byte[] message)
 		{
-			try{
-				out.write(message);
+			try
+            {
+				out.writeObject(message);
 				out.flush();
 			}
-			catch(IOException ioException){ 
+			catch(IOException ioException)
+            {
 				ioException.printStackTrace();
 			}
 		}
