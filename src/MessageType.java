@@ -1,6 +1,8 @@
 import java.util.HashMap;
 import java.util.Map;
 
+// this is an enum so we can store
+// the data type names as actual data.
 public enum MessageType 
 {
     choke(0),

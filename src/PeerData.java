@@ -1,3 +1,5 @@
+// this is a helper class that stores the info
+// for the Peer class.
 public class PeerData 
 {
 

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+// this class contains the init to start the processes.
 public class peerProcess 
 {
     
