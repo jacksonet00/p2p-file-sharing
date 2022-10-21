@@ -34,6 +34,7 @@ public class peerProcess
 
         Scanner peerInfoScanner = new Scanner(peerInfoConfig);
         // Initialize peer table by reading PeerInfo.cfg
+        // this file is provided to us in the Project folder.
         while (peerInfoScanner.hasNextLine()) 
         {
             String record = peerInfoScanner.nextLine();

@@ -10,6 +10,7 @@ public class Server
         this.serverSocket = listening;
     }
 
+    // this function starts the listening Port.
     public void start(int listeningPort) 
     {
         try 
