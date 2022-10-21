@@ -5,6 +5,7 @@ import java.net.*;
 import java.io.*;
 public class Peer {
 
+
     int numPreferredNeighbors;
     int unchokingInterval;
     int optimisticUnchokingInterval;
@@ -17,7 +18,8 @@ public class Peer {
     public static List<PeerThread> Connections = Collections.synchronizedList(new ArrayList<PeerThread>());
 
 
-    public Peer(int numPreferredNeighbors, int unchokingInterval, int optimisticUnchokingInterval, String fileName, long fileSize, int pieceSize) {
+    public Peer(int numPreferredNeighbors, int unchokingInterval, int optimisticUnchokingInterval, String fileName, long fileSize, int pieceSize) 
+    {
 
         this.numPreferredNeighbors = numPreferredNeighbors;
         this.unchokingInterval = unchokingInterval;
@@ -51,11 +53,13 @@ public class Peer {
         }
         
     }
-    void run() {
+    void run()
+    {
         return;
     }
 
-    void listen() {
+    void listen() 
+    {
         return;
     }
 

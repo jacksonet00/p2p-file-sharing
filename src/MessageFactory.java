@@ -2,8 +2,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public class MessageFactory {
-    public static byte[] genHandshakeMessage(int peerId) throws IOException {
+// the message factory decodes and generates messages
+// and handshake message for the P2P communication.
+public class MessageFactory 
+{
+    public static byte[] genHandshakeMessage(int peerId) throws IOException
+    {
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
 
@@ -24,7 +28,8 @@ public class MessageFactory {
         return outputStream.toByteArray();
     }
 
-    public byte[] genChokeMessage() throws IOException {
+    public byte[] genChokeMessage() throws IOException 
+    {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         
         byte[] messageType = new byte[1];
@@ -43,7 +48,8 @@ public class MessageFactory {
         return outputStream.toByteArray();
     }
 
-    public byte[] genUnchokeMessage() throws IOException {
+    public byte[] genUnchokeMessage() throws IOException 
+    {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         
         byte[] messageType = new byte[1];
@@ -62,7 +68,8 @@ public class MessageFactory {
         return outputStream.toByteArray();
     }
 
-    public byte[] genInterestedMessage() throws IOException {
+    public byte[] genInterestedMessage() throws IOException 
+    {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         
         byte[] messageType = new byte[1];
@@ -81,7 +88,8 @@ public class MessageFactory {
         return outputStream.toByteArray();
     }
 
-    public byte[] genUninterestedMessage() throws IOException {
+    public byte[] genUninterestedMessage() throws IOException 
+    {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         
         byte[] messageType = new byte[1];
@@ -100,7 +108,8 @@ public class MessageFactory {
         return outputStream.toByteArray();
     }
 
-    public byte[] genHaveMessage(int pieceIndex) throws IOException{
+    public byte[] genHaveMessage(int pieceIndex) throws IOException
+    {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         byte[] messageType = new byte[1];
@@ -123,7 +132,8 @@ public class MessageFactory {
         return outputStream.toByteArray();
     }
 
-    public static byte[] genBitfieldMessage(byte[] messagePayload) throws IOException {
+    public static byte[] genBitfieldMessage(byte[] messagePayload) throws IOException 
+    {
         
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         
@@ -144,7 +154,8 @@ public class MessageFactory {
         return outputStream.toByteArray();
     }
 
-    public byte[] genRequestMessage(int pieceIndex) throws IOException{
+    public byte[] genRequestMessage(int pieceIndex) throws IOException
+    {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         byte[] messageType = new byte[1];
@@ -167,7 +178,8 @@ public class MessageFactory {
         return outputStream.toByteArray();
     }
 
-    public byte[] pieceMessage(int pieceIndex, byte[] pieceContent) throws IOException{
+    public byte[] pieceMessage(int pieceIndex, byte[] pieceContent) throws IOException
+    {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         byte[] messageType = new byte[1];

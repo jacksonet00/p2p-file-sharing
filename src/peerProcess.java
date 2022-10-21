@@ -6,9 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-public class peerProcess {
+// this class contains the init to start the processes.
+public class peerProcess 
+{
     
-    public static void main(String args[]) throws UnknownHostException, IOException {
+    public static void main(String args[]) throws UnknownHostException, IOException 
+    {
 
         int peerId = Integer.parseInt(args[0]);
 
@@ -31,7 +34,9 @@ public class peerProcess {
 
         Scanner peerInfoScanner = new Scanner(peerInfoConfig);
         // Initialize peer table by reading PeerInfo.cfg
-        while (peerInfoScanner.hasNextLine()) {
+        // this file is provided to us in the Project folder.
+        while (peerInfoScanner.hasNextLine()) 
+        {
             String record = peerInfoScanner.nextLine();
             String[] entries = record.split(" ");
 
@@ -39,7 +44,8 @@ public class peerProcess {
 
             peer.peerDataTable.put(peerData.id, peerData);
 
-            if (peerId != peerData.id) {
+            if (peerId != peerData.id) 
+            {
                 peers.add(peerData);
             }
         }

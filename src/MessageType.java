@@ -1,7 +1,10 @@
 import java.util.HashMap;
 import java.util.Map;
 
-public enum MessageType {
+// this is an enum so we can store
+// the data type names as actual data.
+public enum MessageType 
+{
     choke(0),
     unchoke(1),
     interested(2),
@@ -13,23 +16,28 @@ public enum MessageType {
 
     private int value;
 
-    private MessageType(int _value) {
+    private MessageType(int _value) 
+    {
         value = _value;
     }
 
     private static Map<Integer, MessageType> map = new HashMap<Integer, MessageType>();
 
-    static {
-        for (MessageType MessageType : MessageType.values()) {
+    static 
+    {
+        for (MessageType MessageType : MessageType.values()) 
+        {
             map.put(MessageType.value, MessageType);
         }
     }
 
-    public static MessageType valueOf(int messageType) {
+    public static MessageType valueOf(int messageType) 
+    {
         return (MessageType) map.get(messageType);
     }
 
-    public int getValue() {
+    public int getValue() 
+    {
         return value;
     }
 }
