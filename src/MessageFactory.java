@@ -2,6 +2,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+// the message factory decodes and generates messages
+// and handshake message for the P2P communication.
 public class MessageFactory 
 {
     public static byte[] genHandshakeMessage(int peerId) throws IOException
