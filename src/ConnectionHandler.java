@@ -5,13 +5,16 @@ import java.net.ConnectException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-public class PeerClient {
+// Acts as a client
+// Maintains a TCP connection between the current peer
+// and a remote peer.
+public class ConnectionHandler {
     Peer _peer;
     Peer _remotePeer;
     ObjectInputStream _inputStream;
     ObjectOutputStream _outputStream;
 
-    public PeerClient(Peer peer, Peer remotePeer){
+    public ConnectionHandler(Peer peer, Peer remotePeer){
         _peer = peer;
         _remotePeer = remotePeer;
     }

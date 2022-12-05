@@ -17,23 +17,26 @@ public class peerProcess {
         HashMap<Integer, Peer> peers = new HashMap<Integer, Peer>();
         while (peerInfoConfig.hasNextLine()) {
             String[] record = peerInfoConfig.nextLine().split(" ");
+
             int id = Integer.parseInt(record[0]);
-            Peer peer = new Peer(id, record[1], Integer.parseInt(record[2]), record[3] == "1");
-            peers.put(id, peer);
+            String hostName = record[1];
+            int portNumber = Integer.parseInt(record[2]);
+            boolean containsFile = record[3] == "1";
+
+            peers.put(id, new Peer(id, hostName, portNumber, containsFile));
         }
         peerInfoConfig.close();
 
         // 3. init server side of peer
-        PeerServer peerServer = new PeerServer(peers.get(peerId));
-        Thread peerServerThread = new Thread(peerServer);
-        peerServerThread.start();
+        Listener listener = new Listener(peers.get(peerId));
+        Thread listenerThread = new Thread(listener);
+        listenerThread.start();
         
         // 4. iterate over peers and establish client connection between this peer and each other peer
-        peers.get(peerId).displayCommonData();
         for (Map.Entry<Integer, Peer> entry : peers.entrySet()) {
             Peer peer = entry.getValue();
-            PeerClient peerClient = new PeerClient(peers.get(peerId), peer);
-            peerClient.initTcpConnection();
+            ConnectionHandler connectionHandler = new ConnectionHandler(peers.get(peerId), peer);
+            connectionHandler.initTcpConnection();
         }
     }
 }

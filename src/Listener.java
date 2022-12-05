@@ -4,13 +4,16 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class PeerServer implements Runnable {
+// Acts as a server
+// Handles listening for messages from connected peers
+// and invokes MessagingService to handle response.
+public class Listener implements Runnable {
     Peer _peer;
     Socket _socket;
     ObjectInputStream _inputStream;
     ObjectOutputStream _outputStream;
 
-    public PeerServer(Peer peer) {
+    public Listener(Peer peer) {
         _peer = peer;
     }
 
@@ -36,5 +39,4 @@ public class PeerServer implements Runnable {
             e.printStackTrace();
         }
     }
-    
 }

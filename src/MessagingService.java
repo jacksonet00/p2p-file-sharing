@@ -36,11 +36,18 @@ public class MessagingService implements Runnable {
                     String handshakeString = new String(messageHeader, StandardCharsets.UTF_8);
 
                     if(handshakeString.equals("P2PFILESHARINGPROJ")) {
-                        byte[] peerId = new byte[4];
-                        System.arraycopy(rawMessage, 28, peerId, 0, 4);
-                        int peerIdInt = ByteBuffer.wrap(peerId).getInt();
+                        byte[] peerIdRaw = new byte[4];
+                        System.arraycopy(rawMessage, 28, peerIdRaw, 0, 4);
+                        int peerId = ByteBuffer.wrap(peerIdRaw).getInt();
 
-                        System.out.println("Peer " + _peer._id + " received the handshake message from Peer " + peerIdInt);
+                        if (peerId == _peer._id) {
+                            // prevents peer from "connecting to itself"
+                            continue;
+                        }
+
+                        // TODO: ignore handshake message if this pair of peers is already connected
+
+                        Logger.logTcpConnectionIncoming(_peer._id, peerId);
                     }
             }
         } catch (IOException e) {

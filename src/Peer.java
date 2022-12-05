@@ -3,14 +3,19 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.Scanner;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+
 public class Peer {
-    // PeerInfo.cfg
+    // PeerInfo.cfg data members
     int _id;
     String _hostName;
     int _portNumber;
     boolean _containsFile;
 
-    // Common.cfg
+    // Common.cfg data members
     int _numberOfPreferredNeighbors;
     int _unchokingInterval;
     int _optimisticUnchokingInterval;
@@ -41,6 +46,7 @@ public class Peer {
         commonConfig.close();
     }
 
+    // For debugging purposes
     public void displayPeerData() {
         System.out.println("Peer ID: " + _id);
         System.out.println("Host Name: " + _hostName);
@@ -48,6 +54,7 @@ public class Peer {
         System.out.println("Contains File: " + _containsFile);
     }
 
+    // For debugging purposes
     public void displayCommonData() {
         System.out.println("Number of Preferred Neighbors: " + _numberOfPreferredNeighbors);
         System.out.println("Unchoking Interval: " + _unchokingInterval);
@@ -57,7 +64,7 @@ public class Peer {
         System.out.println("Piece Size: " + _pieceSize);
     }
 
-    public void send(byte [] message, ObjectOutputStream outputStream, int remotePeerId) {
+    public void send(byte[] message, ObjectOutputStream outputStream, int remotePeerId) {
         try{
             outputStream.writeObject(message);
             outputStream.flush();
