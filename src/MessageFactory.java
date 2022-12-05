@@ -208,7 +208,7 @@ public class MessageFactory
     payload with variable size. The 4-byte message length specifies the message length in bytes. It does not include the 
     length of the message length field itself. The 1-byte message type field specifies the type of the message. 
     There are eight types of messages.  */
-    public byte[] decodeMessage(byte[] message) throws IOException
+    public static byte[] decodeMessage(byte[] message) throws IOException
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
@@ -218,29 +218,29 @@ public class MessageFactory
         int _messageType = message[1];
         MessageType messageType = MessageType.valueOf(_messageType);
 
-        if (messageType == MessageType.choke) 
+        if (messageType == MessageType.CHOKE) 
         {
             // choke message has no payload.
             // To choke those neighbors, peer A sends ‘choke’ messages to them 
             // and stop sending pieces.
         }
-        else if (messageType == MessageType.unchoke)
+        else if (messageType == MessageType.UNCHOKE)
         {
             // unchoke message has no payload.
         }
-        else if (messageType == MessageType.interested) 
+        else if (messageType == MessageType.INTERESTED) 
         {
             // interested message has no payload.
         }
-        else if (messageType == MessageType.not_interested) 
+        else if (messageType == MessageType.NOT_INTERESTED) 
         {
             // not interested message has no payload.
         }
-        else if (messageType == MessageType.have) 
+        else if (messageType == MessageType.HAVE) 
         {
             // ‘have’ messages have a payload that contains a 4-byte piece index field.  
         }
-        else if (messageType == MessageType.bitfield) 
+        else if (messageType == MessageType.BITFIELD) 
         {
             /* ‘bitfield’ messages is only sent as the first message right after handshaking is done when 
             a connection is established. ‘bitfield’ messages have a bitfield as its payload. Each bit in 
@@ -250,13 +250,13 @@ public class MessageFactory
             are set to zero. Peers that don’t have anything yet may skip a ‘bitfield’ message.  */
 
         }
-        else if (messageType == MessageType.request) 
+        else if (messageType == MessageType.REQUEST) 
         {
             /* ‘request’ messages have a payload which consists of a 4-byte piece index field. Note 
             that ‘request’ message payload defined here is different from that of BitTorrent. We don’t 
             divide a piece into smaller subpieces.  */
         }
-        else if (messageType == MessageType.piece) 
+        else if (messageType == MessageType.PIECE) 
         {
             /* ‘piece’ messages have a payload which consists of a 4-byte piece index field and the 
             content of the piece.  */

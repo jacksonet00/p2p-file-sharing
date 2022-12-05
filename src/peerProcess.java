@@ -1,59 +1,42 @@
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
-// this class contains the init to start the processes.
-public class peerProcess 
-{
-    
-    public static void main(String args[]) throws UnknownHostException, IOException 
-    {
+public class peerProcess {
 
+    public static void main(String[] args) throws NumberFormatException, FileNotFoundException {
         int peerId = Integer.parseInt(args[0]);
 
-        File peerInfoConfig = new File("PeerInfo.cfg");
-        File commonConfig = new File("Common.cfg");
+        // 1. read peer config
+        File peerInfoConfigFile = new File("PeerInfo.cfg");
+        Scanner peerInfoConfig = new Scanner(peerInfoConfigFile);
 
-        List<PeerData> peers = new ArrayList<PeerData>();
-       
-        Scanner commonScanner = new Scanner(commonConfig);
-        // Read in Peer parameters from Common cfg
-        int numPreferredNeighbors = Integer.parseInt(commonScanner.nextLine().split(" ")[1]);
-        int unchokingInterval = Integer.parseInt(commonScanner.nextLine().split(" ")[1]);
-        int optimisticUnchokingInterval = Integer.parseInt(commonScanner.nextLine().split(" ")[1]);
-        String fileName = commonScanner.nextLine().split(" ")[1];
-        long fileSize = Long.parseLong(commonScanner.nextLine().split(" ")[1]);
-        int pieceSize = Integer.parseInt(commonScanner.nextLine().split(" ")[1]);
-        commonScanner.close();
+        // 2. assemble dict of peers
+        HashMap<Integer, Peer> peers = new HashMap<Integer, Peer>();
+        while (peerInfoConfig.hasNextLine()) {
+            String[] record = peerInfoConfig.nextLine().split(" ");
 
-        Peer peer = new Peer(numPreferredNeighbors, unchokingInterval, optimisticUnchokingInterval, fileName, fileSize, pieceSize);
+            int id = Integer.parseInt(record[0]);
+            String hostName = record[1];
+            int portNumber = Integer.parseInt(record[2]);
+            boolean containsFile = record[3] == "1";
 
-        Scanner peerInfoScanner = new Scanner(peerInfoConfig);
-        // Initialize peer table by reading PeerInfo.cfg
-        // this file is provided to us in the Project folder.
-        while (peerInfoScanner.hasNextLine()) 
-        {
-            String record = peerInfoScanner.nextLine();
-            String[] entries = record.split(" ");
-
-            PeerData peerData = new PeerData(Integer.parseInt(entries[0]), entries[1], Integer.parseInt(entries[2]), Integer.parseInt(entries[3]) == 1);
-
-            peer.peerDataTable.put(peerData.id, peerData);
-
-            if (peerId != peerData.id) 
-            {
-                peers.add(peerData);
-            }
+            peers.put(id, new Peer(id, hostName, portNumber, containsFile));
         }
-        peerInfoScanner.close();
+        peerInfoConfig.close();
 
-        peer.run();
-
-        // peer.peerDataTable.get(peerId).init();
-        // peer.peerDataTable.get(peerId).connectToPeers(peers);
+        // 3. init server side of peer
+        Listener listener = new Listener(peers.get(peerId));
+        Thread listenerThread = new Thread(listener);
+        listenerThread.start();
+        
+        // 4. iterate over peers and establish client connection between this peer and each other peer
+        for (Map.Entry<Integer, Peer> entry : peers.entrySet()) {
+            Peer peer = entry.getValue();
+            ConnectionHandler connectionHandler = new ConnectionHandler(peers.get(peerId), peer);
+            connectionHandler.initTcpConnection();
+        }
     }
 }
