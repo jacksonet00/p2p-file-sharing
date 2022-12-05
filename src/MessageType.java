@@ -5,14 +5,14 @@ import java.util.Map;
 // the data type names as actual data.
 public enum MessageType 
 {
-    choke(0),
-    unchoke(1),
-    interested(2),
-    not_interested(3),
-    have(4),
-    bitfield(5),
-    request(6),
-    piece(7);
+    CHOKE(0),
+    UNCHOKE(1),
+    INTERESTED(2),
+    NOT_INTERESTED(3),
+    HAVE(4),
+    BITFIELD(5),
+    REQUEST(6),
+    PIECE(7);
 
     private int value;
 
