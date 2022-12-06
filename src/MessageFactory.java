@@ -68,7 +68,7 @@ public class MessageFactory
         return outputStream.toByteArray();
     }
 
-    public byte[] genInterestedMessage() throws IOException 
+    public static byte[] genInterestedMessage() throws IOException 
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         
@@ -88,7 +88,7 @@ public class MessageFactory
         return outputStream.toByteArray();
     }
 
-    public byte[] genUninterestedMessage() throws IOException 
+    public static byte[] genUninterestedMessage() throws IOException 
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         
@@ -139,12 +139,12 @@ public class MessageFactory
         
         byte[] messageType = new byte[1];
         messageType[0] = 5;
-
         byte[] messageLength;
         ByteBuffer messageLengthBuffer = ByteBuffer.allocate(4);
         messageLengthBuffer.putInt(messageType.length + messagePayload.length);
         messageLength = messageLengthBuffer.array();
         
+
         outputStream.write(messageLength);
         outputStream.write(messageType);
         outputStream.write(messagePayload);
@@ -215,51 +215,53 @@ public class MessageFactory
         // first, check the fierst 4 bytes to see how long payload is
 
         // then, check for what the message type is.
-        int _messageType = message[1];
-        MessageType messageType = MessageType.valueOf(_messageType);
+        if (message[4] < 8) {
+            int _messageType = message[4];
+            MessageType messageType = MessageType.valueOf(_messageType);
 
-        if (messageType == MessageType.CHOKE) 
-        {
-            // choke message has no payload.
-            // To choke those neighbors, peer A sends ‘choke’ messages to them 
-            // and stop sending pieces.
+            if (messageType == MessageType.CHOKE) 
+            {
+                // choke message has no payload.
+                // To choke those neighbors, peer A sends ‘choke’ messages to them 
+                // and stop sending pieces.
+            }
+            else if (messageType == MessageType.UNCHOKE)
+            {
+                // unchoke message has no payload.
+            }
+            else if (messageType == MessageType.INTERESTED) 
+            {
+                // interested message has no payload.
+            }
+            else if (messageType == MessageType.NOT_INTERESTED) 
+            {
+                // not interested message has no payload.
+            }
+            else if (messageType == MessageType.HAVE) 
+            {
+                // ‘have’ messages have a payload that contains a 4-byte piece index field.  
+            }
+            else if (messageType == MessageType.BITFIELD) 
+            {
+            }
+            else if (messageType == MessageType.REQUEST) 
+            {
+                /* ‘request’ messages have a payload which consists of a 4-byte piece index field. Note 
+                that ‘request’ message payload defined here is different from that of BitTorrent. We don’t 
+                divide a piece into smaller subpieces.  */
+            }
+            else if (messageType == MessageType.PIECE) 
+            {
+                /* ‘piece’ messages have a payload which consists of a 4-byte piece index field and the 
+                content of the piece.  */
+            }
+            else 
+            {
+                System.out.println("Message not of valid type");
+            }
         }
-        else if (messageType == MessageType.UNCHOKE)
-        {
-            // unchoke message has no payload.
-        }
-        else if (messageType == MessageType.INTERESTED) 
-        {
-            // interested message has no payload.
-        }
-        else if (messageType == MessageType.NOT_INTERESTED) 
-        {
-            // not interested message has no payload.
-        }
-        else if (messageType == MessageType.HAVE) 
-        {
-            // ‘have’ messages have a payload that contains a 4-byte piece index field.  
-        }
-        else if (messageType == MessageType.BITFIELD) 
-        {
-            /* ‘bitfield’ messages is only sent as the first message right after handshaking is done when 
-            a connection is established. ‘bitfield’ messages have a bitfield as its payload. Each bit in 
-            the bitfield payload represents whether the peer has the corresponding piece or not. The 
-            first  byte  of  the  bitfield  corresponds  to  piece  indices  0  –  7  from  high  bit  to  low  bit, 
-            respectively. The next one corresponds to piece indices 8 – 15, etc. Spare bits at the end 
-            are set to zero. Peers that don’t have anything yet may skip a ‘bitfield’ message.  */
-
-        }
-        else if (messageType == MessageType.REQUEST) 
-        {
-            /* ‘request’ messages have a payload which consists of a 4-byte piece index field. Note 
-            that ‘request’ message payload defined here is different from that of BitTorrent. We don’t 
-            divide a piece into smaller subpieces.  */
-        }
-        else if (messageType == MessageType.PIECE) 
-        {
-            /* ‘piece’ messages have a payload which consists of a 4-byte piece index field and the 
-            content of the piece.  */
+        else {
+            // handshake
         }
         //outputStream.write(messageLength);
         //outputStream.write(_pieceIndex);

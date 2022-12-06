@@ -22,7 +22,7 @@ public class peerProcess {
             int id = Integer.parseInt(record[0]);
             String hostName = record[1];
             int portNumber = Integer.parseInt(record[2]);
-            boolean containsFile = record[3] == "1";
+            boolean containsFile = record[3].equals("1");
 
             peers.put(id, new Peer(id, hostName, portNumber, containsFile));
         }

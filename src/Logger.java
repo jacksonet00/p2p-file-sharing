@@ -94,7 +94,7 @@ public class Logger
         logger.close();
     }
 
-    public static void logNotReceiveInterestedMessage(int srcPeerId, int destPeerId) throws IOException {
+    public static void logReceiveNotInterestedMessage(int srcPeerId, int destPeerId) throws IOException {
         FileWriter logger = new FileWriter("./log_peer_" + Integer.toString(srcPeerId) + ".log");
 
         logger.write("[" + LocalDateTime.now() + "]: Peer [" 

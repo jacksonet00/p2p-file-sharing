@@ -4,6 +4,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.BitSet;
 
 public class MessagingService implements Runnable {
     Peer _peer;
@@ -38,34 +39,86 @@ public class MessagingService implements Runnable {
 
             while (true) {
                     byte [] rawMessage = (byte[])_inputStream.readObject();
+                    MessageFactory.decodeMessage(rawMessage);
+                    
                     if (rawMessage[4] < 8) {
+                        if (rawMessage[4] == 0) {
+                           Logger.logChokeNeighbor(_peer._id, _remotePeerId);
+                        }
+                        else if (rawMessage[4] == 1) {
+                            // when unchoked, a peer sends a ‘request’ message
+                            // for requesting  a  piece  that  it  does  not  have
+                            // and  has  not  requested  from  other  neighbors
+                            // random selection strategy
+                            Logger.logUnchokedNeighbor(_peer._id, _remotePeerId);
+                            while (true) {
+                                
+                            }
+                            //MessageFactory.genRequestMessage();
+                        }
+                        else if (rawMessage[4] == 2) {
+                            Logger.logReceiveInterestedMessage(_peer._id, _remotePeerId);
+                        }
+                        else if (rawMessage[4] == 3) {
+                            Logger.logReceiveNotInterestedMessage(_peer._id, _remotePeerId);
+                        }
+
+                        else if (rawMessage[4] == 4) {
+                            // Each peer maintains bitfields for all neighbors and updates them
+                            // whenever it receives ‘have’ messages from its neighbors
+                        }
                         // Receiving bitfield message!
-                        if (rawMessage[4] == 0) {}
-                        else if (rawMessage[4] == 1) {}
-                        else if (rawMessage[4] == 2) {}
-                        else if (rawMessage[4] == 3) {}
-                        else if (rawMessage[4] == 4) {}
                         else if(rawMessage[4] == 5) {
                             // TODO: decode bitfield, maybe reorganize how the messages are being read
-                            // ran into issue with buffer underflow when a message other than the handshake was received cause of how we're reading in 0-18 bytes initially
-                            // so I encased it in the else block, but there may be a better way to do it
 
-                            // int messageLength =
-                            // byte[] payload = 
+                            // Find out payload length from 4-byte message length field
+                            byte[] msgLengthRaw = new byte[4];
+                            System.arraycopy(rawMessage, 0, msgLengthRaw, 0, 4);
+                            int msgLength = ByteBuffer.wrap(msgLengthRaw).getInt();
+                            //System.out.println(msgLength);
+
+                            // Remove 1-byte message  type  field for accuraye payload size
+                            int payloadLength = msgLength - 1;
+                            // System.out.println("Payload length is " + payloadLength);
+                            //byte[] payload = new byte[payloadLength];
+
+                            // Check each byte for what pieces peer has.
+                            byte[] payload = new byte[payloadLength];
+                            System.arraycopy(rawMessage, 5, payload, 0, payloadLength);
+                            BitSet remotePeerBitfield  = BitSet.valueOf(payload);
+                            _peer._connectedPeers.get(_remotePeerId)._bitfield = (BitSet) remotePeerBitfield.clone();
+
+                            BitSet bitfieldDiff = (BitSet) _peer._bitfield.clone();
+                            bitfieldDiff.or(remotePeerBitfield);
+                            bitfieldDiff.xor(_peer._bitfield);
+                            
+                            if (bitfieldDiff.isEmpty()) {
+                                // send not interested msg
+                                _peer.send(MessageFactory.genUninterestedMessage(), _outputStream, _remotePeerId);
+                                //System.out.println("Not interested");
+                            }
+                            else {
+                                // send interested msg
+                                _peer.send(MessageFactory.genInterestedMessage(), _outputStream, _remotePeerId);
+                                //System.out.println("Interested");
+                            }
                             
                             // _remotePeerId is currently broken cause it is never set, not sure how to fix other than setting it in ConnectionHandler for the init case
                             //  and then setting it here on handshake retrieve for the connection accepting case
                             System.out.println(_peer._id + " receives bitfield from " + _remotePeerId);
                         }
                         else if (rawMessage[4] == 6) {}
-                        else if (rawMessage[4] == 7) {}
+                        else if (rawMessage[4] == 7) {
+                            // completely downloading the  piece
+                            // peer  A  sends  another  ‘request’  message  to  peer  B
+                            // check edge case for choking
+                        }
                         else {
                             System.out.println("Message not of valid type");
                         }
                     }
                     else { // handshake message
                         ByteBuffer message =  ByteBuffer.wrap(rawMessage);
-                        
                         byte[] messageHeader = new byte[18];
                         message.get(messageHeader,0,18);
                         String handshakeString = new String(messageHeader, StandardCharsets.UTF_8);
@@ -91,8 +144,10 @@ public class MessagingService implements Runnable {
                             Logger.logTcpConnectionIncoming(_peer._id, _remotePeerId);
 
                             // Once TCP connection has been established, send bitfield message (receiving case)
-                            _peer.send(bitfieldMessage, _outputStream, _remotePeerId);
-                            System.out.println(_peer._id + " sends bitfield " + bitfieldMessage + " to " + _remotePeerId);
+                            if (!_peer._bitfield.isEmpty()) {
+                                _peer.send(bitfieldMessage, _outputStream, _remotePeerId);
+                                System.out.println(_peer._id + " sends bitfield " + bitfieldMessage + " to " + _remotePeerId);
+                            }
                         }
                 }
             }
