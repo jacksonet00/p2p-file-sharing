@@ -33,6 +33,10 @@ public class ConnectionHandler {
 
             Thread serviceThread = new Thread(messagingService);
             serviceThread.start();
+            
+            // Add remote peer to connected peers when TCP connection is initiated
+            _peer._connectedPeers.put(_remotePeer._id, _remotePeer);
+            Logger.logTcpConnectionInitiated(_peer._id, _remotePeer._id);
         } catch (ConnectException e) {
             e.printStackTrace();
         } catch (UnknownHostException e) {

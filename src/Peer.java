@@ -2,6 +2,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.Hashtable;
 import java.util.Scanner;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -23,12 +24,17 @@ public class Peer {
     int _fileSize;
     int _pieceSize;
 
+    // provide access to synchronized list to current peer for realtime updating
+    Hashtable<Integer, Peer> peers;
+    Hashtable<Integer, Peer> _connectedPeers;
+    
     public Peer(int peerId, String hostName, int portNumber, boolean containsFile) throws FileNotFoundException {
         init();
         _id = peerId;
         _hostName = hostName;
         _portNumber = portNumber;
         _containsFile = containsFile;
+        _connectedPeers = new Hashtable<Integer, Peer>();
     }
 
     private void init() throws FileNotFoundException {

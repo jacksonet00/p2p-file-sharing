@@ -39,14 +39,18 @@ public class MessagingService implements Runnable {
                         byte[] peerIdRaw = new byte[4];
                         System.arraycopy(rawMessage, 28, peerIdRaw, 0, 4);
                         int peerId = ByteBuffer.wrap(peerIdRaw).getInt();
-
                         if (peerId == _peer._id) {
                             // prevents peer from "connecting to itself"
                             continue;
                         }
 
                         // TODO: ignore handshake message if this pair of peers is already connected
-
+                        if(_peer._connectedPeers.containsKey(peerId)) {
+                            continue;
+                        }
+                        
+                        // Add remote peer to current peer's connectedpeers table if current peer was not the one to initiate the connection
+                        _peer._connectedPeers.put(peerId, _peer.peers.get(peerId));
                         Logger.logTcpConnectionIncoming(_peer._id, peerId);
                     }
             }
