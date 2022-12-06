@@ -22,8 +22,8 @@ public class Logger
         }
     }
     
-    public static void logTcpConnectionIniated(int srcPeerId, int destPeerId) throws IOException {
-        FileWriter logger = new FileWriter("./log_peer_" + Integer.toString(srcPeerId) + ".log");
+    public static void logTcpConnectionInitiated(int srcPeerId, int destPeerId) throws IOException {
+        FileWriter logger = new FileWriter("./log_peer_" + Integer.toString(srcPeerId) + ".log", true);
 
         logger.write("[" + LocalDateTime.now() + "]: Peer [" 
             + Integer.toString(srcPeerId) + "] makes a connection to Peer ["
@@ -32,7 +32,7 @@ public class Logger
     }
 
     public static void logTcpConnectionIncoming(int srcPeerId, int destPeerId) throws IOException {
-        FileWriter logger = new FileWriter("./log_peer_" + Integer.toString(srcPeerId) + ".log");
+        FileWriter logger = new FileWriter("./log_peer_" + Integer.toString(srcPeerId) + ".log",true);
 
         logger.write("[" + LocalDateTime.now() + "]: Peer [" 
             + Integer.toString(srcPeerId) + "] is connected from Peer ["
