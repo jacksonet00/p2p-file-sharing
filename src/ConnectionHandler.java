@@ -23,13 +23,12 @@ public class ConnectionHandler {
         Socket socket;
         try {
             socket = new Socket(_remotePeer._hostName, _remotePeer._portNumber);
-
             _outputStream = new ObjectOutputStream(socket.getOutputStream());
             _outputStream.flush();
 
             _inputStream = new ObjectInputStream(socket.getInputStream());
 
-            MessagingService messagingService = new MessagingService(_peer, socket, _inputStream, _outputStream);
+            MessagingService messagingService = new MessagingService(_peer, _remotePeer._id, socket, _inputStream, _outputStream);
 
             Thread serviceThread = new Thread(messagingService);
             serviceThread.start();
