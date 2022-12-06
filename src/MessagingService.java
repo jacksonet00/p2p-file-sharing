@@ -42,46 +42,32 @@ public class MessagingService implements Runnable {
                     MessageFactory.decodeMessage(rawMessage);
                     
                     if (rawMessage[4] < 8) {
-<<<<<<< HEAD
-                        if (rawMessage[4] == 0) {
-                           Logger.logChokeNeighbor(_peer._id, _remotePeerId);
+                        ByteBuffer message =  ByteBuffer.wrap(rawMessage);
+                        int messagePayloadLength = message.getInt();
+                        byte messageType = message.get();
+                        // Receiving bitfield message!
+                        if (messageType == 0) {
+                            Logger.logChokeNeighbor(_peer._id, _remotePeerId);
                         }
-                        else if (rawMessage[4] == 1) {
+                        else if (messageType == 1) {
                             // when unchoked, a peer sends a ‘request’ message
                             // for requesting  a  piece  that  it  does  not  have
                             // and  has  not  requested  from  other  neighbors
                             // random selection strategy
                             Logger.logUnchokedNeighbor(_peer._id, _remotePeerId);
-                            while (true) {
-                                
-                            }
                             //MessageFactory.genRequestMessage();
                         }
-                        else if (rawMessage[4] == 2) {
+                        else if (messageType == 2) {
                             Logger.logReceiveInterestedMessage(_peer._id, _remotePeerId);
                         }
-                        else if (rawMessage[4] == 3) {
+                        else if (messageType == 3) {
                             Logger.logReceiveNotInterestedMessage(_peer._id, _remotePeerId);
                         }
-
-                        else if (rawMessage[4] == 4) {
+                        else if (messageType == 4) {
                             // Each peer maintains bitfields for all neighbors and updates them
                             // whenever it receives ‘have’ messages from its neighbors
                         }
-                        // Receiving bitfield message!
-                        else if(rawMessage[4] == 5) {
-=======
-                        ByteBuffer message =  ByteBuffer.wrap(rawMessage);
-                        int messagePayloadLength = message.getInt();
-                        byte messageType = message.get();
-                        // Receiving bitfield message!
-                        if (messageType == 0) {}
-                        else if (messageType == 1) {}
-                        else if (messageType == 2) {}
-                        else if (messageType == 3) {}
-                        else if (messageType == 4) {}
                         else if(messageType == 5) {
->>>>>>> d9e717b162061657492b3e45091335808c521021
                             // TODO: decode bitfield, maybe reorganize how the messages are being read
 
                             // Find out payload length from 4-byte message length field
@@ -120,13 +106,6 @@ public class MessagingService implements Runnable {
                             //  and then setting it here on handshake retrieve for the connection accepting case
                             System.out.println(_peer._id + " receives bitfield from " + _remotePeerId);
                         }
-<<<<<<< HEAD
-                        else if (rawMessage[4] == 6) {}
-                        else if (rawMessage[4] == 7) {
-                            // completely downloading the  piece
-                            // peer  A  sends  another  ‘request’  message  to  peer  B
-                            // check edge case for choking
-=======
                         else if (messageType == 6) {}
                         else if (messageType == 7) {
                             int pieceIndex = message.getInt();
@@ -149,7 +128,6 @@ public class MessagingService implements Runnable {
                                 }
                             }
                             // TODO: send request message of random piece that we do NOT have
->>>>>>> d9e717b162061657492b3e45091335808c521021
                         }
                         else {
                             System.out.println("Message not of valid type");
