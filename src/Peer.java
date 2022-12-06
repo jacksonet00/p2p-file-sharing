@@ -2,7 +2,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.Hashtable;
+import java.util.Random;
 import java.util.Hashtable;
 import java.util.Scanner;
 import java.io.ObjectInputStream;
@@ -101,6 +104,28 @@ public class Peer {
         if(_bitfield.nextClearBit(0) >= _totalNumPieces) { // https://stackoverflow.com/questions/36308666/check-if-all-bits-in-bitset-are-set-to-true
            // Once bitfield is all true (all pieces have been received) then the peer now has the file
             _containsFile = true;
+            // TODO: save file to  disk
         }
+    }
+
+    public int getIndexToRequest(int remotePeerId) {
+        BitSet piecesToRequest = (BitSet)_bitfield.clone();
+        // Get pieces that you are interested in by (ALL PIECES BETWEEN YOU AND REMOTE) XOR (YOUR PIECES) == PIECES YOU NEED
+        piecesToRequest.or(_connectedPeers.get(remotePeerId)._bitfield);
+        piecesToRequest.xor(_bitfield);
+        BitSet interestedPieces = (BitSet)piecesToRequest.clone();
+        piecesToRequest.flip(0, _totalNumPieces);
+        piecesToRequest.and(interestedPieces);
+
+        ArrayList<Integer> pieceIndices = new ArrayList<Integer>();
+        for(int i =0; i < piecesToRequest.length(); i++) {
+            if(piecesToRequest.get(i)) {
+                pieceIndices.add(i);
+            }
+        }
+        Random random_method = new Random();
+        int index = random_method.nextInt(pieceIndices.size());
+
+        return pieceIndices.get(index);
     }
 }
