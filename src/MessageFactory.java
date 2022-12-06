@@ -108,7 +108,7 @@ public class MessageFactory
         return outputStream.toByteArray();
     }
 
-    public byte[] genHaveMessage(int pieceIndex) throws IOException
+    public static byte[] genHaveMessage(int pieceIndex) throws IOException
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 

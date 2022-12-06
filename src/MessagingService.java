@@ -42,6 +42,7 @@ public class MessagingService implements Runnable {
                     MessageFactory.decodeMessage(rawMessage);
                     
                     if (rawMessage[4] < 8) {
+<<<<<<< HEAD
                         if (rawMessage[4] == 0) {
                            Logger.logChokeNeighbor(_peer._id, _remotePeerId);
                         }
@@ -69,6 +70,18 @@ public class MessagingService implements Runnable {
                         }
                         // Receiving bitfield message!
                         else if(rawMessage[4] == 5) {
+=======
+                        ByteBuffer message =  ByteBuffer.wrap(rawMessage);
+                        int messagePayloadLength = message.getInt();
+                        byte messageType = message.get();
+                        // Receiving bitfield message!
+                        if (messageType == 0) {}
+                        else if (messageType == 1) {}
+                        else if (messageType == 2) {}
+                        else if (messageType == 3) {}
+                        else if (messageType == 4) {}
+                        else if(messageType == 5) {
+>>>>>>> d9e717b162061657492b3e45091335808c521021
                             // TODO: decode bitfield, maybe reorganize how the messages are being read
 
                             // Find out payload length from 4-byte message length field
@@ -107,11 +120,36 @@ public class MessagingService implements Runnable {
                             //  and then setting it here on handshake retrieve for the connection accepting case
                             System.out.println(_peer._id + " receives bitfield from " + _remotePeerId);
                         }
+<<<<<<< HEAD
                         else if (rawMessage[4] == 6) {}
                         else if (rawMessage[4] == 7) {
                             // completely downloading the  piece
                             // peer  A  sends  another  ‘request’  message  to  peer  B
                             // check edge case for choking
+=======
+                        else if (messageType == 6) {}
+                        else if (messageType == 7) {
+                            int pieceIndex = message.getInt();
+                            byte[] piece = new byte[message.remaining()];
+                            message.get(piece);
+                            // Store piece in peer's current pieces (downloading the piece per se)
+                            _peer._pieces.put(pieceIndex, piece);
+                            Logger.logDownloadedPiece(_peer._id, _remotePeerId, pieceIndex, _peer._pieces.size());
+                            // Update peer's bitfield to indicate piece retrieved
+                            _peer.setBitfield(pieceIndex, true);
+
+                            // send has piece message to all other pieces
+                            // TODO: may need to put this on its own thread..? current output stream is just sent to one socket connection (remote peer that it received the piece from)
+                            for(int key: _peer._connectedPeers.keySet()) {
+                                try {
+                                    byte[] haveMessage = MessageFactory.genHaveMessage(pieceIndex);
+                                    _peer.send(haveMessage, _outputStream, _remotePeerId);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            // TODO: send request message of random piece that we do NOT have
+>>>>>>> d9e717b162061657492b3e45091335808c521021
                         }
                         else {
                             System.out.println("Message not of valid type");

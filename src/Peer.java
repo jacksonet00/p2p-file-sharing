@@ -28,9 +28,12 @@ public class Peer {
     // provide access to synchronized list to current peer for realtime updating
     Hashtable<Integer, Peer> _peers;
     Hashtable<Integer, Peer> _connectedPeers;
+    // current pieces retrieved
+    Hashtable<Integer, byte[]> _pieces;
 
     // general member variables
-    int _pieceCount;
+    // int _pieceCount;
+    int _totalNumPieces;
     BitSet _bitfield; // https://stackoverflow.com/questions/17545601/how-to-represent-bit-fields-and-send-them-in-java
     
     
@@ -42,9 +45,10 @@ public class Peer {
         _containsFile = containsFile;
         
         _connectedPeers = new Hashtable<Integer, Peer>();
-        _bitfield = new BitSet(_pieceCount);
+        _pieces = new Hashtable<Integer, byte[]>();
+        _bitfield = new BitSet(_totalNumPieces);
         if(_containsFile) {
-            _bitfield.set(0, _pieceCount, true);
+            _bitfield.set(0, _totalNumPieces, true);
         } 
     }
 
@@ -62,7 +66,7 @@ public class Peer {
 
         commonConfig.close();
 
-        _pieceCount = (int)Math.ceil((double)_fileSize/_pieceSize); // https://stackoverflow.com/questions/7446710/how-to-round-up-integer-division-and-have-int-result-in-java
+        _totalNumPieces = (int)Math.ceil((double)_fileSize/_pieceSize); // https://stackoverflow.com/questions/7446710/how-to-round-up-integer-division-and-have-int-result-in-java
     }
 
     // For debugging purposes
@@ -89,6 +93,14 @@ public class Peer {
             outputStream.flush();
         } catch (IOException ioException){
             ioException.printStackTrace();
+        }
+    }
+
+    public void setBitfield(int pieceIndex, boolean exists){
+        _bitfield.set(pieceIndex, exists);
+        if(_bitfield.nextClearBit(0) >= _totalNumPieces) { // https://stackoverflow.com/questions/36308666/check-if-all-bits-in-bitset-are-set-to-true
+           // Once bitfield is all true (all pieces have been received) then the peer now has the file
+            _containsFile = true;
         }
     }
 }
