@@ -2,6 +2,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.BitSet;
 import java.util.Hashtable;
 import java.util.Scanner;
 import java.io.ObjectInputStream;
@@ -25,8 +26,13 @@ public class Peer {
     int _pieceSize;
 
     // provide access to synchronized list to current peer for realtime updating
-    Hashtable<Integer, Peer> peers;
+    Hashtable<Integer, Peer> _peers;
     Hashtable<Integer, Peer> _connectedPeers;
+
+    // general member variables
+    int _pieceCount;
+    BitSet _bitfield; // https://stackoverflow.com/questions/17545601/how-to-represent-bit-fields-and-send-them-in-java
+    
     
     public Peer(int peerId, String hostName, int portNumber, boolean containsFile) throws FileNotFoundException {
         init();
@@ -34,7 +40,12 @@ public class Peer {
         _hostName = hostName;
         _portNumber = portNumber;
         _containsFile = containsFile;
+        
         _connectedPeers = new Hashtable<Integer, Peer>();
+        _bitfield = new BitSet(_pieceCount);
+        if(_containsFile) {
+            _bitfield.set(0, _pieceCount, true);
+        } 
     }
 
     private void init() throws FileNotFoundException {
@@ -50,6 +61,8 @@ public class Peer {
         _pieceSize = Integer.parseInt(commonConfig.nextLine().split(" ")[1]);
 
         commonConfig.close();
+
+        _pieceCount = (int)Math.ceil((double)_fileSize/_pieceSize); // https://stackoverflow.com/questions/7446710/how-to-round-up-integer-division-and-have-int-result-in-java
     }
 
     // For debugging purposes

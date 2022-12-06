@@ -27,7 +27,7 @@ public class peerProcess {
             peers.put(id, new Peer(id, hostName, portNumber, containsFile));
         }
         peerInfoConfig.close();
-        peers.get(peerId).peers = peers;
+        peers.get(peerId)._peers = peers;
 
         // 3. init server side of peer
         Listener listener = new Listener(peers.get(peerId));
