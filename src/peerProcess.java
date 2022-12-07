@@ -1,5 +1,7 @@
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
@@ -23,8 +25,34 @@ public class peerProcess {
             String hostName = record[1];
             int portNumber = Integer.parseInt(record[2]);
             boolean containsFile = record[3].equals("1");
-
-            peers.put(id, new Peer(id, hostName, portNumber, containsFile));
+            Peer peer = new Peer(id, hostName, portNumber, containsFile);
+            if(containsFile) {
+                // TODO: read file into peer._pieces
+                FileInputStream is = null;
+                try {
+                    is = new FileInputStream(new File("peer_"+peerId+"/"+peer._fileName));
+                    for(int i = 0; i < peer._totalNumPieces; i++) {
+                        byte[] buf = new byte[peer._pieceSize];
+                        int read = is.read(buf);
+                        peer._pieces.put(i, buf);
+                    }
+                    
+                } catch (IOException e) {
+                    // if file is not found, peer no longer contains a file
+                    // TODO: think of how to update this for OTHER peers in bitfield sending/receiving since it will be an inconsistency with peerinfo.cfg
+                    peer._containsFile = false;
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        is.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                
+                
+            }
+            peers.put(id, peer);
         }
         peerInfoConfig.close();
         peers.get(peerId)._peers = peers;

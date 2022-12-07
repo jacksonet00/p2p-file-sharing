@@ -41,6 +41,7 @@ public class Peer {
     int _totalNumPieces;
     BitSet _bitfield; // https://stackoverflow.com/questions/17545601/how-to-represent-bit-fields-and-send-them-in-java
     Set<Integer> _interestedPeers;
+    Set<Integer> _chokedPeers;
     
     
     public Peer(int peerId, String hostName, int portNumber, boolean containsFile) throws FileNotFoundException {
@@ -56,7 +57,8 @@ public class Peer {
         if(_containsFile) {
             _bitfield.set(0, _totalNumPieces, true);
         } 
-        _interestedPeers =  new HashSet<Integer>();;
+        _interestedPeers =  new HashSet<Integer>();
+        _chokedPeers = new HashSet<Integer>();
     }
 
     private void init() throws FileNotFoundException {
@@ -108,14 +110,6 @@ public class Peer {
         if(_bitfield.nextClearBit(0) >= _totalNumPieces) { // https://stackoverflow.com/questions/36308666/check-if-all-bits-in-bitset-are-set-to-true
            // Once bitfield is all true (all pieces have been received) then the peer now has the file
             _containsFile = true;
-            // TODO: save file to  disk
-            try {
-                Logger.logDownloadComplete(_id);
-            }
-            catch (IOException e) {
-                e.printStackTrace();;
-            }
-            
         }
     }
     public BitSet getInterestedPieces(int remotePeerId) {
