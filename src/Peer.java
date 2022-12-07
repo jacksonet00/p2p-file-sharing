@@ -131,17 +131,18 @@ public class Peer {
     }
 
     public int getIndexToRequest(int remotePeerId) {
-        BitSet piecesToRequest = getInterestedPieces(remotePeerId);
-        BitSet interestedPieces = (BitSet)piecesToRequest.clone();
-        piecesToRequest.flip(0, _totalNumPieces);
-        piecesToRequest.and(interestedPieces);
+        // You want to request what the remote HAS && you DONT HAVE
 
+        // pieces that remote has and you don't have
+        BitSet piecesToRequest = getInterestedPieces(remotePeerId);
+  
         ArrayList<Integer> pieceIndices = new ArrayList<Integer>();
         for(int i =0; i < piecesToRequest.length(); i++) {
             if(piecesToRequest.get(i)) {
                 pieceIndices.add(i);
             }
         }
+        System.out.println("Pieces to request length: " + pieceIndices.size());
         Random random_method = new Random();
         int index = random_method.nextInt(pieceIndices.size());
 
