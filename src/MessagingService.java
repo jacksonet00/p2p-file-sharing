@@ -70,6 +70,7 @@ public class MessagingService implements Runnable {
                         else if (messageType == 4) {
                             // Each peer maintains bitfields for all neighbors and updates them
                             // whenever it receives ‘have’ messages from its neighbors
+                            Logger.logReceiveHaveMessage(_peer._id, _remotePeerId);
                             byte[] indexRaw = new byte[4];
                             System.arraycopy(rawMessage, 5, indexRaw, 0, 4);
                             int index = ByteBuffer.wrap(indexRaw).getInt();
@@ -157,7 +158,7 @@ public class MessagingService implements Runnable {
                                     Logger.logDownloadComplete(_peer._id);
                                 }
                                 catch (IOException e) {
-                                    e.printStackTrace();;
+                                    e.printStackTrace();
                                 }
                             }
                         }
@@ -183,7 +184,7 @@ public class MessagingService implements Runnable {
                             // ignore handshake message if this pair of peers is already connected
                             if(_peer._connectedPeers.containsKey(_remotePeerId)) {
                                 // still need to send bitfield though, ex: p1 initiated p2 -> p2 sends handshake back to p1 -> p1 already connected -> send bitfield to p2
-                                // _peer.send(bitfieldMessage, _outputStream, _remotePeerId);
+                                _peer.send(bitfieldMessage, _outputStream, _remotePeerId);
                                 continue;
                             }
                             
