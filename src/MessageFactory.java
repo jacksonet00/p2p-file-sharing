@@ -154,7 +154,7 @@ public class MessageFactory
         return outputStream.toByteArray();
     }
 
-    public byte[] genRequestMessage(int pieceIndex) throws IOException
+    public static byte[] genRequestMessage(int pieceIndex) throws IOException
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 

@@ -55,12 +55,18 @@ public class MessagingService implements Runnable {
                             // and  has  not  requested  from  other  neighbors
                             // random selection strategy
                             Logger.logUnchokedNeighbor(_peer._id, _remotePeerId);
-                            //MessageFactory.genRequestMessage();
+                            if(!_peer._containsFile) {
+                                int requestIndex = _peer.getIndexToRequest(_remotePeerId);
+                                byte[] requestMessage = MessageFactory.genRequestMessage(requestIndex);
+                                _peer.send(requestMessage, _outputStream, _remotePeerId);
+                            }
                         }
                         else if (messageType == 2) {
+                            _peer._interestedPeers.add(_remotePeerId);
                             Logger.logReceiveInterestedMessage(_peer._id, _remotePeerId);
                         }
                         else if (messageType == 3) {
+                            _peer._interestedPeers.remove(_remotePeerId);
                             Logger.logReceiveNotInterestedMessage(_peer._id, _remotePeerId);
                         }
                         else if (messageType == 4) {
@@ -128,6 +134,11 @@ public class MessagingService implements Runnable {
                                 }
                             }
                             // TODO: send request message of random piece that we do NOT have
+                            if(!_peer._containsFile) {
+                                int requestIndex = _peer.getIndexToRequest(_remotePeerId);
+                                byte[] requestMessage = MessageFactory.genRequestMessage(requestIndex);
+                                _peer.send(requestMessage, _outputStream, _remotePeerId);
+                            }
                         }
                         else {
                             System.out.println("Message not of valid type");
