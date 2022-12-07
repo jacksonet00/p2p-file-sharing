@@ -82,7 +82,7 @@ public class peerProcess {
                 connectionHandler.initTcpConnection();
             }
         }
-        //peers.get(peerId).runPreferredNeighbors();
-       // peers.get(peerId).runOptimisticUnchoke();
+        peers.get(peerId).runPreferredNeighbors();
+        peers.get(peerId).runOptimisticUnchoke();
     }
 }
