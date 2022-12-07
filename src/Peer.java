@@ -107,12 +107,16 @@ public class Peer {
             // TODO: save file to  disk
         }
     }
-
-    public int getIndexToRequest(int remotePeerId) {
+    public BitSet getInterestedPieces(int remotePeerId) {
         BitSet piecesToRequest = (BitSet)_bitfield.clone();
-        // Get pieces that you are interested in by (ALL PIECES BETWEEN YOU AND REMOTE) XOR (YOUR PIECES) == PIECES YOU NEED
+        // Get pieces that you are interested in by (ALL PIECES BETWEEN YOU AND REMOTE) XOR (YOUR PIECES) = PIECES YOU NEED
         piecesToRequest.or(_connectedPeers.get(remotePeerId)._bitfield);
         piecesToRequest.xor(_bitfield);
+        return piecesToRequest;
+    }
+
+    public int getIndexToRequest(int remotePeerId) {
+        BitSet piecesToRequest = getInterestedPieces(remotePeerId);
         BitSet interestedPieces = (BitSet)piecesToRequest.clone();
         piecesToRequest.flip(0, _totalNumPieces);
         piecesToRequest.and(interestedPieces);
