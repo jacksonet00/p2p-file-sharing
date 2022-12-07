@@ -33,18 +33,23 @@ public class peerProcess {
                     is = new FileInputStream(new File("peer_"+peerId+"/"+peer._fileName));
                     for(int i = 0; i < peer._totalNumPieces; i++) {
                         byte[] buf = new byte[peer._pieceSize];
-                        int read = is.read(buf);
-                        peer._pieces.put(i, buf);
-                    }
-                    
-                } catch (IOException e) {
+                        try {
+                            int read = is.read(buf);
+                            peer._pieces.put(i, buf);
+                        } catch(IOException e){
+                            e.printStackTrace();
+                        }              
+                    }   
+                } catch (FileNotFoundException e) {
                     // if file is not found, peer no longer contains a file
                     // TODO: think of how to update this for OTHER peers in bitfield sending/receiving since it will be an inconsistency with peerinfo.cfg
                     peer._containsFile = false;
                     e.printStackTrace();
                 } finally {
                     try {
-                        is.close();
+                        if(is!=null) {
+                            is.close();
+                        }  
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
