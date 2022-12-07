@@ -73,7 +73,7 @@ public class MessagingService implements Runnable {
                             byte[] indexRaw = new byte[4];
                             System.arraycopy(rawMessage, 5, indexRaw, 0, 4);
                             int index = ByteBuffer.wrap(indexRaw).getInt();
-                            _peer._connectedPeers.get(_remotePeerId)._peer._bitfield.set(index, true);
+                            _peer._connectedPeers.get(_remotePeerId).peer._bitfield.set(index, true);
 
                             // determine whether it should send an ‘interested’ message to the neighbor
                             if (!_peer._bitfield.get(index)) {
@@ -98,7 +98,7 @@ public class MessagingService implements Runnable {
                             byte[] payload = new byte[payloadLength];
                             System.arraycopy(rawMessage, 5, payload, 0, payloadLength);
                             BitSet remotePeerBitfield  = BitSet.valueOf(payload);
-                            _peer._connectedPeers.get(_remotePeerId)._peer._bitfield = (BitSet) remotePeerBitfield.clone();
+                            _peer._connectedPeers.get(_remotePeerId).peer._bitfield = (BitSet) remotePeerBitfield.clone();
 
                             BitSet bitfieldDiff = (BitSet) _peer._bitfield.clone();
                             bitfieldDiff.or(remotePeerBitfield);
@@ -117,7 +117,7 @@ public class MessagingService implements Runnable {
                             
                             // _remotePeerId is currently broken cause it is never set, not sure how to fix other than setting it in ConnectionHandler for the init case
                             //  and then setting it here on handshake retrieve for the connection accepting case
-                            // System.out.println(_peer._id + " receives bitfield from " + _remotePeerId);
+                            System.out.println(_peer._id + " receives bitfield from " + _remotePeerId);
                         }
                         else if (messageType == 6) {
                             int pieceIndex = message.getInt();
@@ -137,18 +137,25 @@ public class MessagingService implements Runnable {
                             _peer.setBitfield(pieceIndex, true);
 
                             // send has piece message to all other pieces
-                            // TODO: may need to put this on its own thread..? currently, output stream is just sent to socket connections saved, but not sure if sockets can be blocked
-                            _peer.broadcastHavePiece(pieceIndex);
-
-                            // send request message of random piece that we do NOT have to current connection
-                            // else the peer has the complete file now and we can save it! this peer should no longer receive 'piece' messages after saving the file
+                            // TODO: may need to put this on its own thread..? current output stream is just sent to one socket connection (remote peer that it received the piece from)
+                            for(int tempRemotePeerId: _peer._connectedPeers.keySet()) {
+                                try {
+                                    byte[] haveMessage = MessageFactory.genHaveMessage(pieceIndex);
+                                    Socket tempSocket = _peer._connectedPeers.get(tempRemotePeerId).socket;
+                                    ObjectOutputStream tempOutputStream = new ObjectOutputStream(tempSocket.getOutputStream());
+                                    tempOutputStream.flush();
+                                    _peer.send(haveMessage, tempOutputStream, tempRemotePeerId);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            // TODO: send request message of random piece that we do NOT have
                             if(!_peer._containsFile) {
                                 int requestIndex = _peer.getIndexToRequest(_remotePeerId);
                                 byte[] requestMessage = MessageFactory.genRequestMessage(requestIndex);
                                 _peer.send(requestMessage, _outputStream, _remotePeerId);
                             } else {
-                                // save file to  disk
-                                _peer.savePiecesToFile();
+                                // TODO: save file to  disk
                                 try {
                                     Logger.logDownloadComplete(_peer._id);
                                 }
@@ -158,7 +165,7 @@ public class MessagingService implements Runnable {
                             }
                         }
                         else {
-                            // System.out.println("Message not of valid type");
+                            System.out.println("Message not of valid type");
                         }
                     }
                     else { // handshake message
@@ -193,7 +200,7 @@ public class MessagingService implements Runnable {
                             // Once TCP connection has been established, send bitfield message (receiving case)
                             if (!_peer._bitfield.isEmpty()) {
                                 _peer.send(bitfieldMessage, _outputStream, _remotePeerId);
-                                // System.out.println(_peer._id + " sends bitfield " + bitfieldMessage + " to " + _remotePeerId);
+                                System.out.println(_peer._id + " sends bitfield " + bitfieldMessage + " to " + _remotePeerId);
                             }
                         }
                 }

@@ -1,13 +1,7 @@
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.net.Socket;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -15,9 +9,18 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Random;
+import java.util.Hashtable;
 import java.util.Scanner;
 import java.util.Set;
 import javax.imageio.IIOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.time.Instant;
+
+import javax.imageio.IIOException;
+
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
@@ -128,7 +131,7 @@ public class Peer {
     public BitSet getInterestedPieces(int remotePeerId) {
         BitSet piecesToRequest = (BitSet)_bitfield.clone();
         // Get pieces that you are interested in by (ALL PIECES BETWEEN YOU AND REMOTE) XOR (YOUR PIECES) = PIECES YOU NEED
-        piecesToRequest.or(_connectedPeers.get(remotePeerId)._peer._bitfield);
+        piecesToRequest.or(_connectedPeers.get(remotePeerId).peer._bitfield);
         piecesToRequest.xor(_bitfield);
         return piecesToRequest;
     }
@@ -330,43 +333,88 @@ and stop sending pieces. */
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            
         }
     }
 
-    public void savePiecesToFile() {
-        String directory = "peer_"+_id;
-        try {
-            Files.createDirectories(Paths.get("/Your/Path/Here"));
-        } catch (IOException e) {
-            System.out.println("No write access to directory.");
-            e.printStackTrace();
-        }
+    public void runPreferredNeighbors() throws IOException {
+        Peer _peer = this;
+        final Instant[] start = {
+            Instant.now()
+        };
 
-        if (Files.isDirectory(Paths.get(directory))) {
-            File file = new File(directory + "/" + _fileName);
-            FileOutputStream fileOutput = null;
-            try{
-                fileOutput = new FileOutputStream(file.getAbsoluteFile());
-                for(int i =0; i < _totalNumPieces; i++) {
-                    fileOutput.write(_pieces.get(i));
-                }
-            }
-            catch (IOException e){
-                e.printStackTrace();
-            } catch(NullPointerException e) {
-                System.out.println("Missing piece in _pieces variable");
-                e.printStackTrace();
-            } finally {
-                try {
-                    if(fileOutput != null) {
-                        fileOutput.close();
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(true){
+                    try {
+                        _peer.preferredNeighbors(_interestedPeers, start[0]);
+                        start[0] = Instant.now();
+                        Thread.sleep(_unchokingInterval);
+                    } catch (InterruptedException e) {
+                        System.out.println("Thread interrupted during sleep.");
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                } catch (IOException e) {
-                    System.out.println("Error closing file");
-                    e.printStackTrace();
                 }
-                
+            }
+        });
+
+        thread.start();
+    }
+
+    public void optimisticUnchoke() throws IOException {
+        List<Integer> neighborsToUnchoke = new ArrayList<Integer>();
+        for (int peer : _interestedPeers) {
+            if (_chokedPeers.contains(peer)) {
+                neighborsToUnchoke.add(peer);
+            }
+        }
+        
+        if (!neighborsToUnchoke.isEmpty()) {
+            Random rand = new Random();
+            int peerToUnchoke = neighborsToUnchoke.get(rand.nextInt(neighborsToUnchoke.size()));
+            _chokedPeers.remove(peerToUnchoke);
+            _unchokedPeers.add(peerToUnchoke);
+            Logger.logChangeOptimisticallyUnchokedNeighbor(_id, peerToUnchoke);
+            send(MessageFactory.genUnchokeMessage(), MessagingService._outputStream, peerToUnchoke);
+            for (int peer : _interestedPeers) {
+                if (peer != peerToUnchoke) {
+                    if (!_chokedPeers.contains(peer)) {
+                        Logger.logChokeNeighbor(_id, peer);
+                        send(MessageFactory.genChokeMessage(), MessagingService._outputStream, peerToUnchoke);
+                    }
+                }
             }
         }
     }
+
+    public void runOptimisticUnchoke() {
+        Peer curr = this;
+        Thread _thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(true) {
+                    try {
+                        curr.optimisticUnchoke();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        Thread.sleep(_optimisticUnchokingInterval);
+                    } catch (InterruptedException interruptedException) {
+                        System.out.println("Thread interrupted during sleep.");
+                        interruptedException.printStackTrace();
+                    }
+                }
+            }
+        });
+        _thread.start();
+    }
+    
+    // public void broadcastHavePiece(int pieceIndex) {
+    //     byte[] haveMessage = MessageFactory.genHaveMessage(pieceIndex);
+
+    // }
 }

@@ -1,9 +1,8 @@
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Scanner;
@@ -13,11 +12,6 @@ public class peerProcess {
     public static void main(String[] args) throws NumberFormatException, IOException {
         System.out.println("PeerProcess started");
         int peerId = Integer.parseInt(args[0]);
-        
-        FileWriter logger = new FileWriter("./remote_log_peer_" + Integer.toString(peerId) + ".log", true);
-
-        logger.write("[" + LocalDateTime.now() + "]: Started remotely.\n");
-        logger.close();
 
         // 1. read peer config
         File peerInfoConfigFile = new File("PeerInfo.cfg");
@@ -33,7 +27,7 @@ public class peerProcess {
             int portNumber = Integer.parseInt(record[2]);
             boolean containsFile = record[3].equals("1");
             Peer peer = new Peer(id, hostName, portNumber, containsFile);
-            if(containsFile && id == peerId) {
+            if(containsFile) {
                 // TODO: read file into peer._pieces
                 FileInputStream is = null;
                 try {
@@ -82,7 +76,7 @@ public class peerProcess {
                 connectionHandler.initTcpConnection();
             }
         }
-        peers.get(peerId).runPreferredNeighbors();
-        peers.get(peerId).runOptimisticUnchoke();
+        //peers.get(peerId).runPreferredNeighbors();
+       // peers.get(peerId).runOptimisticUnchoke();
     }
 }
