@@ -32,7 +32,7 @@ public class Peer {
 
     // provide access to synchronized list to current peer for realtime updating
     Hashtable<Integer, Peer> _peers;
-    Hashtable<Integer, Peer> _connectedPeers;
+    Hashtable<Integer, ConnectionPair> _connectedPeers;
     // current pieces retrieved
     Hashtable<Integer, byte[]> _pieces;
 
@@ -51,7 +51,7 @@ public class Peer {
         _portNumber = portNumber;
         _containsFile = containsFile;
         
-        _connectedPeers = new Hashtable<Integer, Peer>();
+        _connectedPeers = new Hashtable<Integer, ConnectionPair>();
         _pieces = new Hashtable<Integer, byte[]>();
         _bitfield = new BitSet(_totalNumPieces);
         if(_containsFile) {
@@ -115,7 +115,7 @@ public class Peer {
     public BitSet getInterestedPieces(int remotePeerId) {
         BitSet piecesToRequest = (BitSet)_bitfield.clone();
         // Get pieces that you are interested in by (ALL PIECES BETWEEN YOU AND REMOTE) XOR (YOUR PIECES) = PIECES YOU NEED
-        piecesToRequest.or(_connectedPeers.get(remotePeerId)._bitfield);
+        piecesToRequest.or(_connectedPeers.get(remotePeerId).peer._bitfield);
         piecesToRequest.xor(_bitfield);
         return piecesToRequest;
     }
@@ -137,4 +137,9 @@ public class Peer {
 
         return pieceIndices.get(index);
     }
+
+    // public void broadcastHavePiece(int pieceIndex) {
+    //     byte[] haveMessage = MessageFactory.genHaveMessage(pieceIndex);
+
+    // }
 }
