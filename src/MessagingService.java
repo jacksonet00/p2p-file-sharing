@@ -182,7 +182,7 @@ public class MessagingService implements Runnable {
                             }
                             byte[] bitfieldMessage = MessageFactory.genBitfieldMessage(_peer._bitfield.toByteArray());
                             // ignore handshake message if this pair of peers is already connected
-                            if(_peer._connectedPeers.containsKey(_remotePeerId)) {
+                            if(_peer._connectedPeers.containsKey(_remotePeerId) && !_peer._bitfield.isEmpty()) {
                                 // still need to send bitfield though, ex: p1 initiated p2 -> p2 sends handshake back to p1 -> p1 already connected -> send bitfield to p2
                                 _peer.send(bitfieldMessage, _outputStream, _remotePeerId);
                                 continue;
