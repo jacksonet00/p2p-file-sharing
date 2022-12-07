@@ -34,7 +34,7 @@ public class ConnectionHandler {
             serviceThread.start();
             
             // Add remote peer to connected peers when TCP connection is initiated
-            ConnectionPair connection = new ConnectionPair(_inputStream, _outputStream, _remotePeer);
+            ConnectionPair connection = new ConnectionPair(socket, _remotePeer);
             _peer._connectedPeers.put(_remotePeer._id, connection);
             Logger.logTcpConnectionInitiated(_peer._id, _remotePeer._id);
         } catch (ConnectException e) {
