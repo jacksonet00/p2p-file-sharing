@@ -119,7 +119,13 @@ public class MessagingService implements Runnable {
                             //  and then setting it here on handshake retrieve for the connection accepting case
                             System.out.println(_peer._id + " receives bitfield from " + _remotePeerId);
                         }
-                        else if (messageType == 6) {}
+                        else if (messageType == 6) {
+                            int pieceIndex = message.getInt();
+                            if(_peer._chokedPeers.contains(_remotePeerId)) {
+                                continue;
+                            }
+                            // TODO: peer that we received request from is not choked --> send piece to them
+                        }
                         else if (messageType == 7) {
                             int pieceIndex = message.getInt();
                             byte[] piece = new byte[message.remaining()];
@@ -145,6 +151,14 @@ public class MessagingService implements Runnable {
                                 int requestIndex = _peer.getIndexToRequest(_remotePeerId);
                                 byte[] requestMessage = MessageFactory.genRequestMessage(requestIndex);
                                 _peer.send(requestMessage, _outputStream, _remotePeerId);
+                            } else {
+                                // TODO: save file to  disk
+                                try {
+                                    Logger.logDownloadComplete(_peer._id);
+                                }
+                                catch (IOException e) {
+                                    e.printStackTrace();;
+                                }
                             }
                         }
                         else {
