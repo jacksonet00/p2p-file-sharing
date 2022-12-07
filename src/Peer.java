@@ -208,8 +208,9 @@ and stop sending pieces. */
                     }
                     try {
                         byte[] unchokeMessage = MessageFactory.genUnchokeMessage();
-                        Socket tempSocket = _connectedPeers.get(selectedPeer)._socket;
-                        ObjectOutputStream tempOutputStream = new ObjectOutputStream(tempSocket.getOutputStream());
+                        // Socket tempSocket = _connectedPeers.get(selectedPeer)._socket;
+                        // ObjectOutputStream tempOutputStream = new ObjectOutputStream(tempSocket.getOutputStream());
+                        ObjectOutputStream tempOutputStream =  _connectedPeers.get(selectedPeer)._outputStream;
                         // TODO: test if flush causes any issues; may become a concurency issue
                         tempOutputStream.flush();
                         Logger.logUnchokedNeighbor(selectedPeer, _id);
@@ -222,8 +223,9 @@ and stop sending pieces. */
                 for(int chokedPeer : _chokedPeers) {
                     try {
                         byte[] chokeMessage = MessageFactory.genChokeMessage();
-                        Socket tempSocket = _connectedPeers.get(chokedPeer)._socket;
-                        ObjectOutputStream tempOutputStream = new ObjectOutputStream(tempSocket.getOutputStream());
+                        // Socket tempSocket = _connectedPeers.get(chokedPeer)._socket;
+                        // ObjectOutputStream tempOutputStream = new ObjectOutputStream(tempSocket.getOutputStream());
+                        ObjectOutputStream tempOutputStream =  _connectedPeers.get(chokedPeer)._outputStream;
                         // TODO: test if flush causes any issues; may become a concurency issue
                         tempOutputStream.flush();
                         Logger.logChokeNeighbor(chokedPeer, _id);
@@ -319,10 +321,11 @@ and stop sending pieces. */
         for(int tempRemotePeerId: _connectedPeers.keySet()) {
             try {
                 byte[] haveMessage = MessageFactory.genHaveMessage(pieceIndex);
-                Socket tempSocket = _connectedPeers.get(tempRemotePeerId)._socket;
-                ObjectOutputStream tempOutputStream = new ObjectOutputStream(tempSocket.getOutputStream());
+                // Socket tempSocket = _connectedPeers.get(tempRemotePeerId)._socket;
+                // ObjectOutputStream tempOutputStream = new ObjectOutputStream(tempSocket.getOutputStream());
+                ObjectOutputStream tempOutputStream =  _connectedPeers.get(tempRemotePeerId)._outputStream;
                 // TODO: test if flush causes any issues; may become a concurency issue
-                tempOutputStream.flush();
+                // tempOutputStream.flush();
                 send(haveMessage, tempOutputStream, tempRemotePeerId);
             } catch (IOException e) {
                 e.printStackTrace();
