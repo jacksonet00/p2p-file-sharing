@@ -4,7 +4,7 @@ import java.util.concurrent.*;
 
 public class startRemotePeers {
 
-    // Configuration
+    // Configuration for startRemotePeers
     // 1. Set the path to the src directory (ex. "~/Folder/Folder/p2p-file-sharing/src")
     //    - it is important to start this path with '~'
     // 2. Set the password as your uf password for canvas (DO NOT COMMIT TO GITHUB)
