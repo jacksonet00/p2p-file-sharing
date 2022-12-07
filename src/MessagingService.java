@@ -142,12 +142,14 @@ public class MessagingService implements Runnable {
                             _peer.broadcastHavePiece(pieceIndex);
 
                             // send request message of random piece that we do NOT have to current connection
+                            // else the peer has the complete file now and we can save it! this peer should no longer receive 'piece' messages after saving the file
                             if(!_peer._containsFile) {
                                 int requestIndex = _peer.getIndexToRequest(_remotePeerId);
                                 byte[] requestMessage = MessageFactory.genRequestMessage(requestIndex);
                                 _peer.send(requestMessage, _outputStream, _remotePeerId);
                             } else {
-                                // TODO: save file to  disk
+                                // save file to  disk
+                                _peer.savePiecesToFile();
                                 try {
                                     Logger.logDownloadComplete(_peer._id);
                                 }
