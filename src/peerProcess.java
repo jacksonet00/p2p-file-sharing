@@ -1,8 +1,9 @@
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
+import java.time.LocalDateTime;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Scanner;
@@ -10,7 +11,13 @@ import java.util.Scanner;
 public class peerProcess {
 
     public static void main(String[] args) throws NumberFormatException, IOException {
+        System.out.println("PeerProcess started");
         int peerId = Integer.parseInt(args[0]);
+        
+        FileWriter logger = new FileWriter("./remote_log_peer_" + Integer.toString(peerId) + ".log", true);
+
+        logger.write("[" + LocalDateTime.now() + "]: Started remotely.\n");
+        logger.close();
 
         // 1. read peer config
         File peerInfoConfigFile = new File("PeerInfo.cfg");
@@ -26,7 +33,7 @@ public class peerProcess {
             int portNumber = Integer.parseInt(record[2]);
             boolean containsFile = record[3].equals("1");
             Peer peer = new Peer(id, hostName, portNumber, containsFile);
-            if(containsFile) {
+            if(containsFile && id == peerId) {
                 // TODO: read file into peer._pieces
                 FileInputStream is = null;
                 try {
