@@ -1,7 +1,13 @@
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashSet;
@@ -133,8 +139,55 @@ public class Peer {
         return pieceIndices.get(index);
     }
 
-    // public void broadcastHavePiece(int pieceIndex) {
-    //     byte[] haveMessage = MessageFactory.genHaveMessage(pieceIndex);
+    public void broadcastHavePiece(int pieceIndex) {
+        for(int tempRemotePeerId: _connectedPeers.keySet()) {
+            try {
+                byte[] haveMessage = MessageFactory.genHaveMessage(pieceIndex);
+                Socket tempSocket = _connectedPeers.get(tempRemotePeerId)._socket;
+                ObjectOutputStream tempOutputStream = new ObjectOutputStream(tempSocket.getOutputStream());
+                // TODO: test if flush causes any issues; may become a concurency issue
+                tempOutputStream.flush();
+                send(haveMessage, tempOutputStream, tempRemotePeerId);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
-    // }
+    public void savePiecesToFile() {
+        String directory = "peer_"+_id;
+        try {
+            Files.createDirectories(Paths.get("/Your/Path/Here"));
+        } catch (IOException e) {
+            System.out.println("No write access to directory.");
+            e.printStackTrace();
+        }
+
+        if (Files.isDirectory(Paths.get(directory))) {
+            File file = new File(directory + "/" + _fileName);
+            FileOutputStream fileOutput = null;
+            try{
+                fileOutput = new FileOutputStream(file.getAbsoluteFile());
+                for(int i =0; i < _totalNumPieces; i++) {
+                    fileOutput.write(_pieces.get(i));
+                }
+            }
+            catch (IOException e){
+                e.printStackTrace();
+            } catch(NullPointerException e) {
+                System.out.println("Missing piece in _pieces variable");
+                e.printStackTrace();
+            } finally {
+                try {
+                    if(fileOutput != null) {
+                        fileOutput.close();
+                    }
+                } catch (IOException e) {
+                    System.out.println("Error closing file");
+                    e.printStackTrace();
+                }
+                
+            }
+        }
+    }
 }
