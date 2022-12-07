@@ -41,7 +41,7 @@ public class Logger
     }
 
     public static void logChangePerferredNeighbors(int peerId, List<Integer> preferredNeighborIdList) throws IOException {
-        FileWriter logger = new FileWriter("./log_peer_" + Integer.toString(peerId) + ".log");
+        FileWriter logger = new FileWriter("./log_peer_" + Integer.toString(peerId) + ".log", true);
 
         logger.write("[" + LocalDateTime.now() + "]: Peer [" 
             + Integer.toString(peerId) + "] has the preferred neighbors ["
@@ -50,7 +50,7 @@ public class Logger
     }
 
     public static void logChangeOptimisticallyUnchokedNeighbor(int srcPeerId, int neighborPeerId) throws IOException {
-        FileWriter logger = new FileWriter("./log_peer_" + Integer.toString(srcPeerId) + ".log");
+        FileWriter logger = new FileWriter("./log_peer_" + Integer.toString(srcPeerId) + ".log", true);
 
         logger.write("[" + LocalDateTime.now() + "]: Peer [" 
             + Integer.toString(srcPeerId) + "] has the optimistically unchoked neighbor ["
@@ -59,7 +59,7 @@ public class Logger
     }
 
     public static void logUnchokedNeighbor(int srcPeerId, int neighborPeerId) throws IOException {
-        FileWriter logger = new FileWriter("./log_peer_" + Integer.toString(srcPeerId) + ".log");
+        FileWriter logger = new FileWriter("./log_peer_" + Integer.toString(srcPeerId) + ".log", true);
 
         logger.write("[" + LocalDateTime.now() + "]: Peer [" 
             + Integer.toString(srcPeerId) + "] is unchoked by ["
@@ -68,7 +68,7 @@ public class Logger
     }
 
     public static void logChokeNeighbor(int srcPeerId, int neighborPeerId) throws IOException {
-        FileWriter logger = new FileWriter("./log_peer_" + Integer.toString(srcPeerId) + ".log");
+        FileWriter logger = new FileWriter("./log_peer_" + Integer.toString(srcPeerId) + ".log", true);
 
         logger.write("[" + LocalDateTime.now() + "]: Peer [" 
             + Integer.toString(srcPeerId) + "] is choked by ["
@@ -77,7 +77,7 @@ public class Logger
     }
 
     public static void logReceiveHaveMessage(int srcPeerId, int destPeerId) throws IOException {
-        FileWriter logger = new FileWriter("./log_peer_" + Integer.toString(srcPeerId) + ".log");
+        FileWriter logger = new FileWriter("./log_peer_" + Integer.toString(srcPeerId) + ".log", true);
 
         logger.write("[" + LocalDateTime.now() + "]: Peer [" 
             + Integer.toString(srcPeerId) + "] received the ‘have’ message from ["
@@ -86,7 +86,7 @@ public class Logger
     }
 
     public static void logReceiveInterestedMessage(int srcPeerId, int destPeerId) throws IOException {
-        FileWriter logger = new FileWriter("./log_peer_" + Integer.toString(srcPeerId) + ".log");
+        FileWriter logger = new FileWriter("./log_peer_" + Integer.toString(srcPeerId) + ".log", true);
 
         logger.write("[" + LocalDateTime.now() + "]: Peer [" 
             + Integer.toString(srcPeerId) + "] received the ‘interested’ message from ["
@@ -95,7 +95,7 @@ public class Logger
     }
 
     public static void logReceiveNotInterestedMessage(int srcPeerId, int destPeerId) throws IOException {
-        FileWriter logger = new FileWriter("./log_peer_" + Integer.toString(srcPeerId) + ".log");
+        FileWriter logger = new FileWriter("./log_peer_" + Integer.toString(srcPeerId) + ".log", true);
 
         logger.write("[" + LocalDateTime.now() + "]: Peer [" 
             + Integer.toString(srcPeerId) + "] received the ‘not interested’ message from ["
@@ -104,7 +104,7 @@ public class Logger
     }
 
     public static void logDownloadedPiece(int srcPeerId, int destPeerId, int pieceId, int pieceCount) throws IOException {
-        FileWriter logger = new FileWriter("./log_peer_" + Integer.toString(srcPeerId) + ".log");
+        FileWriter logger = new FileWriter("./log_peer_" + Integer.toString(srcPeerId) + ".log", true);
 
         logger.write("[" + LocalDateTime.now() + "]: Peer [" 
             + Integer.toString(srcPeerId) + "] has downloaded the piece"
@@ -115,7 +115,7 @@ public class Logger
     }
 
     public static void logDownloadComplete(int peerId) throws IOException {
-        FileWriter logger = new FileWriter("./log_peer_" + Integer.toString(peerId) + ".log");
+        FileWriter logger = new FileWriter("./log_peer_" + Integer.toString(peerId) + ".log", true);
 
         logger.write("[" + LocalDateTime.now() + "]: Peer [" 
             + Integer.toString(peerId) + "] has downloaded the complete file.");
