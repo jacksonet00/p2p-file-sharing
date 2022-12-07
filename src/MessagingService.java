@@ -51,14 +51,19 @@ public class MessagingService implements Runnable {
                         }
                         else if (messageType == 1) {
                             Logger.logUnchokedNeighbor(_peer._id, _remotePeerId);
-                            int index = _peer.getIndexToRequest(_remotePeerId);
-                            MessageFactory.genRequestMessage(index);
+                            if(!_peer._containsFile) {
+                                int requestIndex = _peer.getIndexToRequest(_remotePeerId);
+                                byte[] requestMessage = MessageFactory.genRequestMessage(requestIndex);
+                                _peer.send(requestMessage, _outputStream, _remotePeerId);
+                            }
                         }
                         else if (messageType == 2) {
+                            _peer._interestedPeers.add(_remotePeerId);
                             Logger.logReceiveInterestedMessage(_peer._id, _remotePeerId);
                             // update table that peer is interested for optimistically unchoked
                         }
                         else if (messageType == 3) {
+                            _peer._interestedPeers.remove(_remotePeerId);
                             Logger.logReceiveNotInterestedMessage(_peer._id, _remotePeerId);
                             // update table that peer is not interested for optimistically unchoked
                         }
@@ -136,6 +141,11 @@ public class MessagingService implements Runnable {
                                 }
                             }
                             // TODO: send request message of random piece that we do NOT have
+                            if(!_peer._containsFile) {
+                                int requestIndex = _peer.getIndexToRequest(_remotePeerId);
+                                byte[] requestMessage = MessageFactory.genRequestMessage(requestIndex);
+                                _peer.send(requestMessage, _outputStream, _remotePeerId);
+                            }
                         }
                         else {
                             System.out.println("Message not of valid type");

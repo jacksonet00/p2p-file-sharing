@@ -4,10 +4,12 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Random;
 import java.util.Hashtable;
 import java.util.Scanner;
+import java.util.Set;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
@@ -38,6 +40,7 @@ public class Peer {
     // int _pieceCount;
     int _totalNumPieces;
     BitSet _bitfield; // https://stackoverflow.com/questions/17545601/how-to-represent-bit-fields-and-send-them-in-java
+    Set<Integer> _interestedPeers;
     
     
     public Peer(int peerId, String hostName, int portNumber, boolean containsFile) throws FileNotFoundException {
@@ -53,6 +56,7 @@ public class Peer {
         if(_containsFile) {
             _bitfield.set(0, _totalNumPieces, true);
         } 
+        _interestedPeers =  new HashSet<Integer>();;
     }
 
     private void init() throws FileNotFoundException {
@@ -105,14 +109,25 @@ public class Peer {
            // Once bitfield is all true (all pieces have been received) then the peer now has the file
             _containsFile = true;
             // TODO: save file to  disk
+            try {
+                Logger.logDownloadComplete(_id);
+            }
+            catch (IOException e) {
+                e.printStackTrace();;
+            }
+            
         }
+    }
+    public BitSet getInterestedPieces(int remotePeerId) {
+        BitSet piecesToRequest = (BitSet)_bitfield.clone();
+        // Get pieces that you are interested in by (ALL PIECES BETWEEN YOU AND REMOTE) XOR (YOUR PIECES) = PIECES YOU NEED
+        piecesToRequest.or(_connectedPeers.get(remotePeerId)._bitfield);
+        piecesToRequest.xor(_bitfield);
+        return piecesToRequest;
     }
 
     public int getIndexToRequest(int remotePeerId) {
-        BitSet piecesToRequest = (BitSet)_bitfield.clone();
-        // Get pieces that you are interested in by (ALL PIECES BETWEEN YOU AND REMOTE) XOR (YOUR PIECES) == PIECES YOU NEED
-        piecesToRequest.or(_connectedPeers.get(remotePeerId)._bitfield);
-        piecesToRequest.xor(_bitfield);
+        BitSet piecesToRequest = getInterestedPieces(remotePeerId);
         BitSet interestedPieces = (BitSet)piecesToRequest.clone();
         piecesToRequest.flip(0, _totalNumPieces);
         piecesToRequest.and(interestedPieces);
