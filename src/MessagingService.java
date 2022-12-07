@@ -193,7 +193,7 @@ public class MessagingService implements Runnable {
                             }
                             
                             // Add remote peer to current peer's connectedpeers table if current peer was not the one to initiate the connection
-                            ConnectionPair connection = new ConnectionPair(_inputStream, _outputStream, _peer._peers.get(_remotePeerId));
+                            ConnectionPair connection = new ConnectionPair(_socket, _peer._peers.get(_remotePeerId));
                             _peer._connectedPeers.put(_remotePeerId, connection);
                             Logger.logTcpConnectionIncoming(_peer._id, _remotePeerId);
 

@@ -10,7 +10,6 @@ import java.util.Scanner;
 public class peerProcess {
 
     public static void main(String[] args) throws NumberFormatException, IOException {
-        System.out.println("PeerProcess started");
         int peerId = Integer.parseInt(args[0]);
 
         // 1. read peer config
