@@ -2,6 +2,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashSet;
@@ -133,8 +134,18 @@ public class Peer {
         return pieceIndices.get(index);
     }
 
-    // public void broadcastHavePiece(int pieceIndex) {
-    //     byte[] haveMessage = MessageFactory.genHaveMessage(pieceIndex);
-
-    // }
+    public void broadcastHavePiece(int pieceIndex) {
+        for(int tempRemotePeerId: _connectedPeers.keySet()) {
+            try {
+                byte[] haveMessage = MessageFactory.genHaveMessage(pieceIndex);
+                Socket tempSocket = _connectedPeers.get(tempRemotePeerId)._socket;
+                ObjectOutputStream tempOutputStream = new ObjectOutputStream(tempSocket.getOutputStream());
+                // TODO: test if flush causes any issues; may become a concurency issue
+                tempOutputStream.flush();
+                send(haveMessage, tempOutputStream, tempRemotePeerId);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

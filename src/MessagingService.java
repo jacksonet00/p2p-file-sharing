@@ -138,19 +138,10 @@ public class MessagingService implements Runnable {
                             _peer.setBitfield(pieceIndex, true);
 
                             // send has piece message to all other pieces
-                            // TODO: may need to put this on its own thread..? current output stream is just sent to one socket connection (remote peer that it received the piece from)
-                            for(int tempRemotePeerId: _peer._connectedPeers.keySet()) {
-                                try {
-                                    byte[] haveMessage = MessageFactory.genHaveMessage(pieceIndex);
-                                    Socket tempSocket = _peer._connectedPeers.get(tempRemotePeerId)._socket;
-                                    ObjectOutputStream tempOutputStream = new ObjectOutputStream(tempSocket.getOutputStream());
-                                    tempOutputStream.flush();
-                                    _peer.send(haveMessage, tempOutputStream, tempRemotePeerId);
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                            // TODO: send request message of random piece that we do NOT have
+                            // TODO: may need to put this on its own thread..? currently, output stream is just sent to socket connections saved, but not sure if sockets can be blocked
+                            _peer.broadcastHavePiece(pieceIndex);
+
+                            // send request message of random piece that we do NOT have to current connection
                             if(!_peer._containsFile) {
                                 int requestIndex = _peer.getIndexToRequest(_remotePeerId);
                                 byte[] requestMessage = MessageFactory.genRequestMessage(requestIndex);
