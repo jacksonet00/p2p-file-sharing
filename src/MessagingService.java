@@ -11,7 +11,7 @@ public class MessagingService implements Runnable {
     int _remotePeerId;
     Socket _socket;
     ObjectInputStream _inputStream;
-    ObjectOutputStream _outputStream;
+    static ObjectOutputStream _outputStream;
 
     public MessagingService(Peer peer, Socket socket, ObjectInputStream inputStream, ObjectOutputStream outputStream){
         _peer = peer;
@@ -45,7 +45,6 @@ public class MessagingService implements Runnable {
                         ByteBuffer message =  ByteBuffer.wrap(rawMessage);
                         int messagePayloadLength = message.getInt();
                         byte messageType = message.get();
-                        // Receiving bitfield message!
                         if (messageType == 0) {
                             Logger.logChokeNeighbor(_peer._id, _remotePeerId);
                         }

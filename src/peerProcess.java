@@ -75,5 +75,6 @@ public class peerProcess {
                 connectionHandler.initTcpConnection();
             }
         }
+        peers.get(peerId).runOptimisticUnchoke();
     }
 }

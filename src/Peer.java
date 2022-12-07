@@ -14,6 +14,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.Instant;
 
 public class Peer {
     // PeerInfo.cfg data members
@@ -137,7 +138,74 @@ public class Peer {
 
         return pieceIndices.get(index);
     }
+    
+    public void preferredNeighbors(Set<Integer> interestedPeers, Instant start) {
+        if (this._containsFile) {
 
+        }
+    }
+/*
+    public void unchoke() {
+        Peer peer = this;
+        final Instant[] start = {Instant.now()};
+
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(true){
+                    try {
+                        preferredNeighbors(_interestedPeers, start[0]);
+                        start[0] = Instant.now();
+                        Thread.sleep(_unchokingInterval);
+                    } catch (InterruptedException | IOException e) {
+                        System.out.println("Thread to unchoke neighbor interrupted while trying to sleep.");
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+
+        thread.start();
+    }*/
+    public void optimisticUnchoke() throws IOException {
+        Set<Integer> neighborsToUnchoke = new HashSet<>();
+        for (int peer : _interestedPeers) {
+            if (_chokedPeers.contains(peer)) {
+                neighborsToUnchoke.add(peer);
+            }
+        }
+        if (!neighborsToUnchoke.isEmpty()) {
+            Random rand = new Random();
+            int peerToUnchoke = rand.nextInt(neighborsToUnchoke.size());
+            _chokedPeers.remove(peerToUnchoke);
+            Logger.logChangeOptimisticallyUnchokedNeighbor(_id, peerToUnchoke);
+            send(MessageFactory.genUnchokeMessage(), MessagingService._outputStream, peerToUnchoke);
+        }
+    }
+
+    public void runOptimisticUnchoke() {
+        Peer curr = this;
+        Thread _thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(true) {
+                    try {
+                        curr.optimisticUnchoke();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        Thread.sleep(_optimisticUnchokingInterval);
+                    } catch (InterruptedException interruptedException) {
+                        System.out.println("Thread interrupted during sleep.");
+                        interruptedException.printStackTrace();
+                    }
+                }
+            }
+        });
+        _thread.start();
+    }
+    
     // public void broadcastHavePiece(int pieceIndex) {
     //     byte[] haveMessage = MessageFactory.genHaveMessage(pieceIndex);
 
