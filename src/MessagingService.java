@@ -50,22 +50,30 @@ public class MessagingService implements Runnable {
                             Logger.logChokeNeighbor(_peer._id, _remotePeerId);
                         }
                         else if (messageType == 1) {
-                            // when unchoked, a peer sends a ‘request’ message
-                            // for requesting  a  piece  that  it  does  not  have
-                            // and  has  not  requested  from  other  neighbors
-                            // random selection strategy
                             Logger.logUnchokedNeighbor(_peer._id, _remotePeerId);
-                            //MessageFactory.genRequestMessage();
+                            int index = _peer.getIndexToRequest(_remotePeerId);
+                            MessageFactory.genRequestMessage(index);
                         }
                         else if (messageType == 2) {
                             Logger.logReceiveInterestedMessage(_peer._id, _remotePeerId);
+                            // update table that peer is interested for optimistically unchoked
                         }
                         else if (messageType == 3) {
                             Logger.logReceiveNotInterestedMessage(_peer._id, _remotePeerId);
+                            // update table that peer is not interested for optimistically unchoked
                         }
                         else if (messageType == 4) {
                             // Each peer maintains bitfields for all neighbors and updates them
                             // whenever it receives ‘have’ messages from its neighbors
+                            byte[] indexRaw = new byte[4];
+                            System.arraycopy(rawMessage, 5, indexRaw, 0, 4);
+                            int index = ByteBuffer.wrap(indexRaw).getInt();
+                            _peer._connectedPeers.get(_remotePeerId)._bitfield.set(index, true);
+
+                            // determine whether it should send an ‘interested’ message to the neighbor
+                            if (!_peer._bitfield.get(index)) {
+                                _peer.send(MessageFactory.genInterestedMessage(), _outputStream, _remotePeerId);
+                            }
                         }
                         else if(messageType == 5) {
                             // TODO: decode bitfield, maybe reorganize how the messages are being read
