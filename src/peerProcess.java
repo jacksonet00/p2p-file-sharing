@@ -9,7 +9,7 @@ import java.util.Scanner;
 
 public class peerProcess {
 
-    public static void main(String[] args) throws NumberFormatException, FileNotFoundException {
+    public static void main(String[] args) throws NumberFormatException, IOException {
         int peerId = Integer.parseInt(args[0]);
 
         // 1. read peer config
@@ -75,6 +75,7 @@ public class peerProcess {
                 connectionHandler.initTcpConnection();
             }
         }
-        peers.get(peerId).runOptimisticUnchoke();
+        //peers.get(peerId).runPreferredNeighbors();
+       // peers.get(peerId).runOptimisticUnchoke();
     }
 }

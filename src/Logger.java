@@ -40,7 +40,7 @@ public class Logger
         logger.close();
     }
 
-    public static void logChangePerferredNeighbors(int peerId, List<Integer> preferredNeighborIdList) throws IOException {
+    public static void logChangePreferredNeighbors(int peerId, List<Integer> preferredNeighborIdList) throws IOException {
         FileWriter logger = new FileWriter("./log_peer_" + Integer.toString(peerId) + ".log", true);
 
         logger.write("[" + LocalDateTime.now() + "]: Peer [" 

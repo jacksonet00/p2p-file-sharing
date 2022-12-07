@@ -6,10 +6,14 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Random;
 import java.util.Hashtable;
 import java.util.Scanner;
 import java.util.Set;
+
+import javax.imageio.IIOException;
+
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
@@ -43,6 +47,7 @@ public class Peer {
     BitSet _bitfield; // https://stackoverflow.com/questions/17545601/how-to-represent-bit-fields-and-send-them-in-java
     Set<Integer> _interestedPeers;
     Set<Integer> _chokedPeers;
+    Set<Integer> _unchokedPeers;
     
     
     public Peer(int peerId, String hostName, int portNumber, boolean containsFile) throws FileNotFoundException {
@@ -60,6 +65,7 @@ public class Peer {
         } 
         _interestedPeers =  new HashSet<Integer>();
         _chokedPeers = new HashSet<Integer>();
+        _unchokedPeers = new HashSet<Integer>();
     }
 
     private void init() throws FileNotFoundException {
@@ -139,26 +145,79 @@ public class Peer {
         return pieceIndices.get(index);
     }
     
-    public void preferredNeighbors(Set<Integer> interestedPeers, Instant start) {
-        if (this._containsFile) {
+    public void preferredNeighbors(Set<Integer> interestedPeers, Instant start) throws IOException{
+        Random rand = new Random();
+        
+        List<Integer> myList = new ArrayList<Integer>();
+        // TODO: figure out why _containsFile doesn't return true for 1001
+        if (_id == 1001) {
+            // If peer A has a complete file, it determines  preferred neighbors randomly among those 
+            // that are interested in its data rather than comparing downloading rates. 
+            if (!interestedPeers.isEmpty()) {
+                    List<Integer> potentialPeers = new ArrayList<Integer>();
+                    for (int interestedPeer : interestedPeers) {
+                        potentialPeers.add(interestedPeer);
+                    }
+                    
+                int first = rand.nextInt(potentialPeers.size());
+                int second = rand.nextInt(potentialPeers.size());
+                while (first == second && potentialPeers.size() > 1) { // make sure peers are not the same
+                    second = rand.nextInt(potentialPeers.size());
+                }
+                System.out.println(first + " " + second);
+                myList.add(potentialPeers.get(first));
+                myList.add(potentialPeers.get(second));
 
+                // Remove previously unchoked peers that are not selected.
+                if (_unchokedPeers.isEmpty()) {
+                    for (int newPeer : myList) {
+                        _unchokedPeers.add(newPeer);
+                        Logger.logUnchokedNeighbor(newPeer, _id);
+                        send(MessageFactory.genUnchokeMessage(), MessagingService._outputStream, newPeer);
+                    }
+                }
+                else {
+                    for (int unchokedPeer : _unchokedPeers) {
+                        if (!myList.contains(unchokedPeer)) {
+                            _chokedPeers.add(unchokedPeer);
+                            _unchokedPeers.remove(unchokedPeer);
+                            Logger.logChokeNeighbor(unchokedPeer, _id);
+                            send(MessageFactory.genChokeMessage(), MessagingService._outputStream, unchokedPeer);
+                        }
+                    }
+                }
+
+                for (int newPeer : myList) {
+                    if (!_unchokedPeers.contains(newPeer)) {
+                        Logger.logUnchokedNeighbor(newPeer, _id);
+                        send(MessageFactory.genUnchokeMessage(), MessagingService._outputStream, newPeer);
+                    }
+                }
+
+                Logger.logChangePreferredNeighbors(_id, myList);
+            }
+            
         }
     }
-/*
-    public void unchoke() {
-        Peer peer = this;
-        final Instant[] start = {Instant.now()};
+
+    public void runPreferredNeighbors() throws IOException {
+        Peer _peer = this;
+        final Instant[] start = {
+            Instant.now()
+        };
 
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 while(true){
                     try {
-                        preferredNeighbors(_interestedPeers, start[0]);
+                        _peer.preferredNeighbors(_interestedPeers, start[0]);
                         start[0] = Instant.now();
                         Thread.sleep(_unchokingInterval);
-                    } catch (InterruptedException | IOException e) {
-                        System.out.println("Thread to unchoke neighbor interrupted while trying to sleep.");
+                    } catch (InterruptedException e) {
+                        System.out.println("Thread interrupted during sleep.");
+                        e.printStackTrace();
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
@@ -166,20 +225,31 @@ public class Peer {
         });
 
         thread.start();
-    }*/
+    }
+
     public void optimisticUnchoke() throws IOException {
-        Set<Integer> neighborsToUnchoke = new HashSet<>();
+        List<Integer> neighborsToUnchoke = new ArrayList<Integer>();
         for (int peer : _interestedPeers) {
             if (_chokedPeers.contains(peer)) {
                 neighborsToUnchoke.add(peer);
             }
         }
+        
         if (!neighborsToUnchoke.isEmpty()) {
             Random rand = new Random();
-            int peerToUnchoke = rand.nextInt(neighborsToUnchoke.size());
+            int peerToUnchoke = neighborsToUnchoke.get(rand.nextInt(neighborsToUnchoke.size()));
             _chokedPeers.remove(peerToUnchoke);
+            _unchokedPeers.add(peerToUnchoke);
             Logger.logChangeOptimisticallyUnchokedNeighbor(_id, peerToUnchoke);
             send(MessageFactory.genUnchokeMessage(), MessagingService._outputStream, peerToUnchoke);
+            for (int peer : _interestedPeers) {
+                if (peer != peerToUnchoke) {
+                    if (!_chokedPeers.contains(peer)) {
+                        Logger.logChokeNeighbor(_id, peer);
+                        send(MessageFactory.genChokeMessage(), MessagingService._outputStream, peerToUnchoke);
+                    }
+                }
+            }
         }
     }
 

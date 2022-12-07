@@ -28,7 +28,7 @@ public class MessageFactory
         return outputStream.toByteArray();
     }
 
-    public byte[] genChokeMessage() throws IOException 
+    public static byte[] genChokeMessage() throws IOException 
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         
