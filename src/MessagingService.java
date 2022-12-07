@@ -74,7 +74,7 @@ public class MessagingService implements Runnable {
                             byte[] indexRaw = new byte[4];
                             System.arraycopy(rawMessage, 5, indexRaw, 0, 4);
                             int index = ByteBuffer.wrap(indexRaw).getInt();
-                            _peer._connectedPeers.get(_remotePeerId)._bitfield.set(index, true);
+                            _peer._connectedPeers.get(_remotePeerId).peer._bitfield.set(index, true);
 
                             // determine whether it should send an ‘interested’ message to the neighbor
                             if (!_peer._bitfield.get(index)) {
@@ -99,7 +99,7 @@ public class MessagingService implements Runnable {
                             byte[] payload = new byte[payloadLength];
                             System.arraycopy(rawMessage, 5, payload, 0, payloadLength);
                             BitSet remotePeerBitfield  = BitSet.valueOf(payload);
-                            _peer._connectedPeers.get(_remotePeerId)._bitfield = (BitSet) remotePeerBitfield.clone();
+                            _peer._connectedPeers.get(_remotePeerId).peer._bitfield = (BitSet) remotePeerBitfield.clone();
 
                             BitSet bitfieldDiff = (BitSet) _peer._bitfield.clone();
                             bitfieldDiff.or(remotePeerBitfield);
@@ -139,10 +139,13 @@ public class MessagingService implements Runnable {
 
                             // send has piece message to all other pieces
                             // TODO: may need to put this on its own thread..? current output stream is just sent to one socket connection (remote peer that it received the piece from)
-                            for(int key: _peer._connectedPeers.keySet()) {
+                            for(int tempRemotePeerId: _peer._connectedPeers.keySet()) {
                                 try {
                                     byte[] haveMessage = MessageFactory.genHaveMessage(pieceIndex);
-                                    _peer.send(haveMessage, _outputStream, _remotePeerId);
+                                    Socket tempSocket = _peer._connectedPeers.get(tempRemotePeerId).socket;
+                                    ObjectOutputStream tempOutputStream = new ObjectOutputStream(tempSocket.getOutputStream());
+                                    tempOutputStream.flush();
+                                    _peer.send(haveMessage, tempOutputStream, tempRemotePeerId);
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -189,7 +192,8 @@ public class MessagingService implements Runnable {
                             }
                             
                             // Add remote peer to current peer's connectedpeers table if current peer was not the one to initiate the connection
-                            _peer._connectedPeers.put(_remotePeerId, _peer._peers.get(_remotePeerId));
+                            ConnectionPair connection = new ConnectionPair(_socket, _peer._peers.get(_remotePeerId));
+                            _peer._connectedPeers.put(_remotePeerId, connection);
                             Logger.logTcpConnectionIncoming(_peer._id, _remotePeerId);
 
                             // Once TCP connection has been established, send bitfield message (receiving case)
