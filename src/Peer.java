@@ -7,13 +7,8 @@ import java.util.BitSet;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Random;
-import java.util.Hashtable;
 import java.util.Scanner;
 import java.util.Set;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
 
 public class Peer {
     // PeerInfo.cfg data members
@@ -115,7 +110,7 @@ public class Peer {
     public BitSet getInterestedPieces(int remotePeerId) {
         BitSet piecesToRequest = (BitSet)_bitfield.clone();
         // Get pieces that you are interested in by (ALL PIECES BETWEEN YOU AND REMOTE) XOR (YOUR PIECES) = PIECES YOU NEED
-        piecesToRequest.or(_connectedPeers.get(remotePeerId).peer._bitfield);
+        piecesToRequest.or(_connectedPeers.get(remotePeerId)._peer._bitfield);
         piecesToRequest.xor(_bitfield);
         return piecesToRequest;
     }
