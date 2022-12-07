@@ -1,12 +1,12 @@
 import java.net.Socket;
 
 public class ConnectionPair {
-    Socket socket;  
-    Peer peer;
+    Socket _socket;  
+    Peer _peer;
 
     public ConnectionPair(Socket socket, Peer peer)
     {  
-        this.socket = socket;  
-        this.peer = peer;  
+        _socket = socket;  
+        _peer = peer;  
     }
 }
