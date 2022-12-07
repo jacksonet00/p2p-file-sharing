@@ -26,7 +26,7 @@ public class peerProcess {
             int portNumber = Integer.parseInt(record[2]);
             boolean containsFile = record[3].equals("1");
             Peer peer = new Peer(id, hostName, portNumber, containsFile);
-            if(containsFile) {
+            if(containsFile && id == peerId) {
                 // TODO: read file into peer._pieces
                 FileInputStream is = null;
                 try {

@@ -1,12 +1,15 @@
-import java.net.Socket;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 public class ConnectionPair {
-    Socket socket;  
-    Peer peer;
+    ObjectInputStream _inputStream;
+    ObjectOutputStream _outputStream;
+    Peer _peer;
 
-    public ConnectionPair(Socket socket, Peer peer)
+    public ConnectionPair(ObjectInputStream inputStream, ObjectOutputStream outputStream, Peer peer)
     {  
-        this.socket = socket;  
-        this.peer = peer;  
+        _inputStream = inputStream;
+        _outputStream = outputStream; 
+        _peer = peer;  
     }
 }
