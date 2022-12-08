@@ -170,11 +170,13 @@ and stop sending pieces. */
         
         // List<Integer> myList = new ArrayList<Integer>();
         // TODO: figure out why _containsFile doesn't return true for 1001
-        if (_id == 1001) {
+        System.out.println(_containsFile);
+        if (_containsFile) {
             // If peer A has a complete file, it determines  preferred neighbors randomly among those 
             // that are interested in its data rather than comparing downloading rates. 
+            System.out.println("begin preferredneighbours after containsfile");
             if (!interestedPeers.isEmpty()) {
-
+                System.out.println("begin preferredneighbours with interested peers");
                 ArrayList<Integer> potentialPeers = new ArrayList<Integer>(Arrays.asList(interestedPeers.toArray(new Integer[interestedPeers.size()])));
                 Set<Integer> selectedPeers = new HashSet<>();
                 for(int i = 0; i < _numberOfPreferredNeighbors && i < interestedPeers.size(); i++) {
@@ -200,12 +202,14 @@ and stop sending pieces. */
                         _chokedPeers.remove(selectedPeer);
                     }
                 }
-
+                System.out.println("preferredneighbours before send unchoke");
                 // send unchoke message to all selected peers
                 for(int selectedPeer: selectedPeers) {
+                    System.out.println("num of selected peers: " + selectedPeers.size());
                     if(prevUnchokedPeers.contains(selectedPeer)) {
                         continue;
                     }
+                    System.out.println("before gen unchoke");
                     try {
                         byte[] unchokeMessage = MessageFactory.genUnchokeMessage();
                         // Socket tempSocket = _connectedPeers.get(selectedPeer)._socket;
@@ -219,8 +223,10 @@ and stop sending pieces. */
                         e.printStackTrace();
                     }
                 }
+                System.out.println("preferredneighbours before send choke");
                 // send choked messages
                 for(int chokedPeer : _chokedPeers) {
+                    System.out.println("num of choked peers: " + _chokedPeers.size());
                     try {
                         byte[] chokeMessage = MessageFactory.genChokeMessage();
                         // Socket tempSocket = _connectedPeers.get(chokedPeer)._socket;
@@ -335,12 +341,12 @@ and stop sending pieces. */
 
     public void savePiecesToFile() {
         String directory = "peer_"+_id;
-        try {
-            Files.createDirectories(Paths.get("/Your/Path/Here"));
-        } catch (IOException e) {
-            System.out.println("No write access to directory.");
-            e.printStackTrace();
-        }
+        // try {
+        //     Files.createDirectories(Paths.get("/Your/Path/Here"));
+        // } catch (IOException e) {
+        //     System.out.println("No write access to directory.");
+        //     e.printStackTrace();
+        // }
 
         if (Files.isDirectory(Paths.get(directory))) {
             File file = new File(directory + "/" + _fileName);

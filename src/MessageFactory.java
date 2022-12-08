@@ -178,7 +178,7 @@ public class MessageFactory
         return outputStream.toByteArray();
     }
 
-    public byte[] pieceMessage(int pieceIndex, byte[] pieceContent) throws IOException
+    public static byte[] pieceMessage(int pieceIndex, byte[] pieceContent) throws IOException
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
