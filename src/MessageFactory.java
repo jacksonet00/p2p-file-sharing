@@ -257,7 +257,7 @@ public class MessageFactory
             }
             else 
             {
-                System.out.println("Message not of valid type");
+                // System.out.println("Message not of valid type");
             }
         }
         else {

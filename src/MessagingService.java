@@ -169,7 +169,7 @@ public class MessagingService implements Runnable {
                                     Logger.logDownloadComplete(_peer._id);
                                 }
                                 catch (IOException e) {
-                                    e.printStackTrace();
+                                    // e.printStackTrace();
                                 }
                             }
                         }
@@ -204,6 +204,7 @@ public class MessagingService implements Runnable {
                             // Add remote peer to current peer's connectedpeers table if current peer was not the one to initiate the connection
                             ConnectionPair connection = new ConnectionPair(_inputStream, _outputStream, _peer._peers.get(_remotePeerId));
                             _peer._connectedPeers.put(_remotePeerId, connection);
+                            System.out.println("Peer " + _peer._id + " is connected from Peer " + _remotePeerId + ".");
                             Logger.logTcpConnectionIncoming(_peer._id, _remotePeerId);
 
                             // Once TCP connection has been established, send bitfield message (receiving case)
@@ -215,9 +216,9 @@ public class MessagingService implements Runnable {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            // e.printStackTrace();
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            // e.printStackTrace();
         }
     }
 }

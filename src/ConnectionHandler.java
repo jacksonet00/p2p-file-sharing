@@ -36,13 +36,14 @@ public class ConnectionHandler {
             // Add remote peer to connected peers when TCP connection is initiated
             ConnectionPair connection = new ConnectionPair(_inputStream, _outputStream, _remotePeer);
             _peer._connectedPeers.put(_remotePeer._id, connection);
+            System.out.println("Peer " + _peer._id + " intiates a connection with " + _remotePeer._id + ".");
             Logger.logTcpConnectionInitiated(_peer._id, _remotePeer._id);
         } catch (ConnectException e) {
-            e.printStackTrace();
+            // e.printStackTrace();
         } catch (UnknownHostException e) {
-            e.printStackTrace();
+            // e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
+            // e.printStackTrace();
         }
     }
 }
