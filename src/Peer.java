@@ -255,7 +255,7 @@ public class Peer {
                     }
                 }
                 
-                Logger.logChangePreferredNeighbors(_id, Arrays.asList(interestedPeers.toArray(new Integer[selectedPeers.size()])));
+                Logger.logChangePreferredNeighbors(_id, Arrays.asList(selectedPeers.toArray(new Integer[selectedPeers.size()])));
             }
             
         }
@@ -364,10 +364,20 @@ public class Peer {
             File file = new File(directory + "/" + _fileName);
             FileOutputStream fileOutput = null;
             try{
+                // write first n-1 pieces
                 fileOutput = new FileOutputStream(file.getAbsoluteFile());
-                for(int i =0; i < _totalNumPieces; i++) {
+                for(int i =0; i < _totalNumPieces - 1; i++) {
                     fileOutput.write(_pieces.get(i));
                 }
+
+                // write last piece
+                int lastPieceSize = _fileSize % _pieceSize;
+                byte[] lastPieceRaw = _pieces.get(_totalNumPieces - 1);
+                byte[] lastPiece = new byte[lastPieceSize];
+                for(int i = 0; i < lastPieceSize; i++) {
+                    lastPiece[i] = lastPieceRaw[i];
+                }
+                fileOutput.write(lastPiece);
             }
             catch (IOException e){
                 // e.printStackTrace();

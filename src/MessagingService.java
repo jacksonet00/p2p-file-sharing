@@ -72,7 +72,7 @@ public class MessagingService implements Runnable {
                             Logger.logReceiveHaveMessage(_peer._id, _remotePeerId);
                             byte[] indexRaw = new byte[4];
                             System.arraycopy(rawMessage, 5, indexRaw, 0, 4);
-                            int index = ByteBuffer.wrap(indexRaw).getInt();
+                            int index = message.getInt();
                             // _peer._connectedPeers.get(_remotePeerId)._peer._bitfield.set(index, true);
                             _peer.setRemoteBitfield(_remotePeerId, index, true);
                             Peer remotePeer = _peer._connectedPeers.get(_remotePeerId)._peer;
