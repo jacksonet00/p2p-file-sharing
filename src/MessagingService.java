@@ -149,6 +149,7 @@ public class MessagingService implements Runnable {
                             // Store piece in peer's current pieces (downloading the piece per se)
                             _peer._pieces.put(pieceIndex, piece);
                             Logger.logDownloadedPiece(_peer._id, _remotePeerId, pieceIndex, _peer._pieces.size());
+                            _peer._connectedPeers.get(_remotePeerId)._peer._piecesDownloadedInSession++;
                             // Update peer's bitfield to indicate piece retrieved
                             _peer.setBitfield(pieceIndex, true);
 

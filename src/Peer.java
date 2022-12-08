@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -23,6 +24,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.Duration;
 import java.time.Instant;
 
 public class Peer {
@@ -54,6 +56,7 @@ public class Peer {
     Set<Integer> _chokedPeers;
     Set<Integer> _unchokedPeers;
     int _currentOptimisticallyUnchokedPeer;
+    int _piecesDownloadedInSession;
     
     
     public Peer(int peerId, String hostName, int portNumber, boolean containsFile) throws FileNotFoundException {
@@ -73,6 +76,7 @@ public class Peer {
         _chokedPeers = new HashSet<Integer>();
         _unchokedPeers = new HashSet<Integer>();
         _currentOptimisticallyUnchokedPeer = -1;
+        _piecesDownloadedInSession = 0;
     }
 
     private void init() throws FileNotFoundException {
@@ -176,21 +180,64 @@ have to send ‘unchoke’ message to it. All other neighbors previously unchoke
 selected as preferred neighbors at this time should be choked unless it is an optimistically
 unchoked neighbor. To choke those neighbors, peer A sends ‘choke’ messages to them
 and stop sending pieces. */
-    public void preferredNeighbors(Set<Integer> interestedPeers, Instant start) throws IOException{
+    public void preferredNeighbors(Instant start) throws IOException{
         Random rand = new Random();
-        
-        // List<Integer> myList = new ArrayList<Integer>();
-        // TODO: figure out why _containsFile doesn't return true for 1001
-       //System.out.println(_containsFile);
-        if (_containsFile) {
+        Instant finish = Instant.now();
+        if (!_containsFile) {
+            Hashtable<Integer, Double> ratesWithId = new Hashtable<Integer, Double>();
+            List<Integer> newUnchokedPeers = new ArrayList<Integer>();
+            _connectedPeers.forEach((id, _connectionPair) -> {
+                int duration = Duration.between(start, finish).getNano();
+                // System.out.println("id: " + id + " bytes: " + _connectionPair._peer._piecesDownloadedInSession);
+                double rate = ((double) _connectionPair._peer._piecesDownloadedInSession / duration);
+                ratesWithId.put(id, rate);
+            });
+    
+            ratesWithId.forEach((id, rate) -> {
+                if (!_interestedPeers.contains(id)) {
+                    ratesWithId.remove(id);
+                }
+            });
+
+            Collection<Double> tempCollection = ratesWithId.values();
+            List<Double> rates = new ArrayList<Double>(tempCollection);
+            Collections.sort(rates, Collections.reverseOrder());
+            for (int i = 0; i < _numberOfPreferredNeighbors; ++i) {
+                ratesWithId.forEach((id, rate) -> {
+                    if (rate == rates.get(0)) {
+                        ratesWithId.remove(id);
+                        newUnchokedPeers.add(id);
+                        ratesWithId.remove(id);
+                    }
+                    else {
+                        return;
+                    }
+                });
+                rates.remove(0);
+            }
+            for (int id : _unchokedPeers) {
+                if (!newUnchokedPeers.contains(id)) {
+                    _chokedPeers.add(id);
+                    Logger.logChokeNeighbor(id, _id);
+                    send(MessageFactory.genChokeMessage(), _connectedPeers.get(id)._outputStream, id);
+                }
+                _unchokedPeers.remove(id);
+            }
+            for (int id : newUnchokedPeers) {
+                _unchokedPeers.add(id);
+                Logger.logUnchokedNeighbor(id, _id);
+                send(MessageFactory.genUnchokeMessage(), _connectedPeers.get(id)._outputStream, id);
+            }
+        }
+        else if (_containsFile) {
             // If peer A has a complete file, it determines  preferred neighbors randomly among those 
             // that are interested in its data rather than comparing downloading rates. 
             //System.out.println("begin preferredneighbours after containsfile");
-            if (!interestedPeers.isEmpty()) {
+            if (!_interestedPeers.isEmpty()) {
                 //System.out.println("begin preferredneighbours with interested peers");
-                ArrayList<Integer> potentialPeers = new ArrayList<Integer>(Arrays.asList(interestedPeers.toArray(new Integer[interestedPeers.size()])));
+                ArrayList<Integer> potentialPeers = new ArrayList<Integer>(Arrays.asList(_interestedPeers.toArray(new Integer[_interestedPeers.size()])));
                 Set<Integer> selectedPeers = new HashSet<>();
-                for(int i = 0; i < _numberOfPreferredNeighbors && i < interestedPeers.size(); i++) {
+                for(int i = 0; i < _numberOfPreferredNeighbors && i < _interestedPeers.size(); i++) {
                     int randIndex = rand.nextInt(potentialPeers.size());
                     selectedPeers.add(potentialPeers.get(randIndex));
                     potentialPeers.remove(randIndex);
@@ -251,7 +298,7 @@ and stop sending pieces. */
                     }
                 }
                 
-                Logger.logChangePreferredNeighbors(_id, Arrays.asList(interestedPeers.toArray(new Integer[selectedPeers.size()])));
+                Logger.logChangePreferredNeighbors(_id, Arrays.asList(_interestedPeers.toArray(new Integer[selectedPeers.size()])));
             }
             
         }
@@ -268,9 +315,12 @@ and stop sending pieces. */
             public void run() {
                 while(true){
                     try {
-                        _peer.preferredNeighbors(_interestedPeers, start[0]);
+                        _peer.preferredNeighbors(start[0]);
                         start[0] = Instant.now();
-                        Thread.sleep(_unchokingInterval* 100);
+                        _connectedPeers.forEach((id, _connectionPair) -> {
+                            _connectionPair._peer._piecesDownloadedInSession = 0;
+                        });
+                        Thread.sleep(_unchokingInterval * 100);
                     } catch (InterruptedException e) {
                         System.out.println("Thread interrupted during sleep.");
                         e.printStackTrace();
@@ -320,7 +370,7 @@ and stop sending pieces. */
                         e.printStackTrace();
                     }
                     try {
-                        Thread.sleep(_optimisticUnchokingInterval* 100);
+                        Thread.sleep(_optimisticUnchokingInterval * 100);
                     } catch (InterruptedException interruptedException) {
                         System.out.println("Thread interrupted during sleep.");
                         interruptedException.printStackTrace();
