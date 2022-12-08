@@ -76,6 +76,6 @@ public class peerProcess {
             }
         }
         //peers.get(peerId).runPreferredNeighbors();
-       // peers.get(peerId).runOptimisticUnchoke();
+        peers.get(peerId).runOptimisticUnchoke();
     }
 }

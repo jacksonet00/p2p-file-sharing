@@ -279,18 +279,18 @@ and stop sending pieces. */
         if (!neighborsToUnchoke.isEmpty()) {
             Random rand = new Random();
             int peerToUnchoke = neighborsToUnchoke.get(rand.nextInt(neighborsToUnchoke.size()));
+            if (_currentOptimisticallyUnchokedPeer != -1) {
+                _chokedPeers.add(_currentOptimisticallyUnchokedPeer);
+                _unchokedPeers.remove(_currentOptimisticallyUnchokedPeer);
+                Logger.logChokeNeighbor(_id, _currentOptimisticallyUnchokedPeer);
+                send(MessageFactory.genChokeMessage(), MessagingService._outputStream, _currentOptimisticallyUnchokedPeer);
+            }
+            _currentOptimisticallyUnchokedPeer = peerToUnchoke;
+            System.out.println("New unchoked peer is " + peerToUnchoke);
             _chokedPeers.remove(peerToUnchoke);
             _unchokedPeers.add(peerToUnchoke);
             Logger.logChangeOptimisticallyUnchokedNeighbor(_id, peerToUnchoke);
             send(MessageFactory.genUnchokeMessage(), MessagingService._outputStream, peerToUnchoke);
-            for (int peer : _interestedPeers) {
-                if (peer != peerToUnchoke) {
-                    if (!_chokedPeers.contains(peer)) {
-                        Logger.logChokeNeighbor(_id, peer);
-                        send(MessageFactory.genChokeMessage(), MessagingService._outputStream, peerToUnchoke);
-                    }
-                }
-            }
         }
     }
 
