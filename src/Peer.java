@@ -111,7 +111,7 @@ public class Peer {
             outputStream.writeObject(message);
             outputStream.flush();
         } catch (IOException ioException){
-            ioException.printStackTrace();
+            // ioException.printStackTrace();
         }
     }
 
@@ -152,10 +152,10 @@ public class Peer {
                 pieceIndices.add(i);
             }
         }
-        System.out.println("Pieces to request length: " + pieceIndices.size());
+        // System.out.println("Pieces to request length: " + pieceIndices.size());
         Random random_method = new Random();
         int index = random_method.nextInt(pieceIndices.size());
-        System.out.println("piece requested: " + index);
+        // System.out.println("piece requested: " + index);
 
         return pieceIndices.get(index);
     }
@@ -183,9 +183,9 @@ public class Peer {
             System.out.println("All connected peers have file. Closing all connections.");
             closeAllConnections();
         }
-        System.out.println("Some peers still don't have file. Continuing with preferred neighbors.");
+        // System.out.println("Some peers still don't have file. Continuing with preferred neighbors.");
 
-        System.out.println(_containsFile);
+        // System.out.println(_containsFile);
         if (_containsFile) {
             // If peer A has a complete file, it determines  preferred neighbors randomly among those 
             // that are interested in its data rather than comparing downloading rates. 
@@ -235,7 +235,7 @@ public class Peer {
                         Logger.logUnchokedNeighbor(selectedPeer, _id);
                         send(unchokeMessage, tempOutputStream, selectedPeer);
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        // e.printStackTrace();
                     }
                 }
                 //System.out.println("preferredneighbours before send choke");
@@ -251,7 +251,7 @@ public class Peer {
                         Logger.logChokeNeighbor(chokedPeer, _id);
                         send(chokeMessage, tempOutputStream, chokedPeer);
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        // e.printStackTrace();
                     }
                 }
                 
@@ -276,10 +276,10 @@ public class Peer {
                         start[0] = Instant.now();
                         Thread.sleep(_unchokingInterval* 100);
                     } catch (InterruptedException e) {
-                        System.out.println("Thread interrupted during sleep.");
-                        e.printStackTrace();
+                        // System.out.println("Thread interrupted during sleep.");
+                        // e.printStackTrace();
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        // e.printStackTrace();
                     }
                 }
             }
@@ -321,13 +321,13 @@ public class Peer {
                     try {
                         curr.optimisticUnchoke();
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        // e.printStackTrace();
                     }
                     try {
                         Thread.sleep(_optimisticUnchokingInterval* 100);
                     } catch (InterruptedException interruptedException) {
-                        System.out.println("Thread interrupted during sleep.");
-                        interruptedException.printStackTrace();
+                        // System.out.println("Thread interrupted during sleep.");
+                        // interruptedException.printStackTrace();
                     }
                 }
             }
@@ -346,7 +346,7 @@ public class Peer {
                 // tempOutputStream.flush();
                 send(haveMessage, tempOutputStream, tempRemotePeerId);
             } catch (IOException e) {
-                e.printStackTrace();
+                // e.printStackTrace();
             }
         }
     }
@@ -370,18 +370,18 @@ public class Peer {
                 }
             }
             catch (IOException e){
-                e.printStackTrace();
+                // e.printStackTrace();
             } catch(NullPointerException e) {
-                System.out.println("Missing piece in _pieces variable");
-                e.printStackTrace();
+                // System.out.println("Missing piece in _pieces variable");
+                // e.printStackTrace();
             } finally {
                 try {
                     if(fileOutput != null) {
                         fileOutput.close();
                     }
                 } catch (IOException e) {
-                    System.out.println("Error closing file");
-                    e.printStackTrace();
+                    // System.out.println("Error closing file");
+                    // e.printStackTrace();
                 }
                 
             }
@@ -395,7 +395,7 @@ public class Peer {
                 connectionPair._inputStream.close();
                 connectionPair._outputStream.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                // e.printStackTrace();
             }
             _isRunning = false;
         }
@@ -404,16 +404,16 @@ public class Peer {
 
     public boolean allConnectedPeersHaveFile() {
         if (!_containsFile) {
-            System.out.println("Peer does not have file");
+            // System.out.println("Peer does not have file");
             return false;
         }
         if (_peers.size() - 1 != _connectedPeers.size()) {
-            System.out.println("Not all peers are connected");
+            // System.out.println("Not all peers are connected");
             return false;
         }
         for(int tempRemotePeerId: _connectedPeers.keySet()) {
             if (!_connectedPeers.get(tempRemotePeerId)._peer._containsFile) {
-                System.out.println("Peer " + tempRemotePeerId + " does not have file");
+                // System.out.println("Peer " + tempRemotePeerId + " does not have file");
                 return false;
             }
         }
