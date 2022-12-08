@@ -39,7 +39,7 @@ public class MessagingService implements Runnable {
 
             while (true) {
                     byte [] rawMessage = (byte[])_inputStream.readObject();
-                    MessageFactory.decodeMessage(rawMessage);
+                    // MessageFactory.decodeMessage(rawMessage);
                     
                     if (rawMessage[4] < 8) {
                         ByteBuffer message =  ByteBuffer.wrap(rawMessage);
@@ -125,6 +125,9 @@ public class MessagingService implements Runnable {
                                 continue;
                             }
                             // TODO: peer that we received request from is not choked --> send piece to them
+                            byte[] piece = _peer._pieces.get(pieceIndex).clone();
+                            byte[] pieceMessage = MessageFactory.pieceMessage(pieceIndex, piece);
+                            _peer.send(pieceMessage, _outputStream, _remotePeerId);
                         }
                         else if (messageType == 7) {
                             int pieceIndex = message.getInt();
