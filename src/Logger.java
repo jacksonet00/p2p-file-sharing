@@ -107,10 +107,10 @@ public class Logger
         FileWriter logger = new FileWriter("./log_peer_" + Integer.toString(srcPeerId) + ".log", true);
 
         logger.write("[" + LocalDateTime.now() + "]: Peer [" 
-            + Integer.toString(srcPeerId) + "] has downloaded the piece"
+            + Integer.toString(srcPeerId) + "] has downloaded the piece ["
             + Integer.toString(pieceId) + "] from ["
             + Integer.toString(destPeerId) + "]. Now the number of pieces it has is ["
-            + Integer.toString(pieceCount) + "].");
+            + Integer.toString(pieceCount) + "].\n");
         logger.close();
     }
 
