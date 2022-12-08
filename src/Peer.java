@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
@@ -180,13 +181,13 @@ and stop sending pieces. */
         
         // List<Integer> myList = new ArrayList<Integer>();
         // TODO: figure out why _containsFile doesn't return true for 1001
-        System.out.println(_containsFile);
+       //System.out.println(_containsFile);
         if (_containsFile) {
             // If peer A has a complete file, it determines  preferred neighbors randomly among those 
             // that are interested in its data rather than comparing downloading rates. 
-            System.out.println("begin preferredneighbours after containsfile");
+            //System.out.println("begin preferredneighbours after containsfile");
             if (!interestedPeers.isEmpty()) {
-                System.out.println("begin preferredneighbours with interested peers");
+                //System.out.println("begin preferredneighbours with interested peers");
                 ArrayList<Integer> potentialPeers = new ArrayList<Integer>(Arrays.asList(interestedPeers.toArray(new Integer[interestedPeers.size()])));
                 Set<Integer> selectedPeers = new HashSet<>();
                 for(int i = 0; i < _numberOfPreferredNeighbors && i < interestedPeers.size(); i++) {
@@ -195,7 +196,7 @@ and stop sending pieces. */
                     potentialPeers.remove(randIndex);
                 }
                 // update choked peers
-                for(int toBeChokedPeer: _unchokedPeers) {
+                for (int toBeChokedPeer : _unchokedPeers) {
                     _chokedPeers.add(toBeChokedPeer);
                 }
                 // copy current unchoked peers set
@@ -212,14 +213,14 @@ and stop sending pieces. */
                         _chokedPeers.remove(selectedPeer);
                     }
                 }
-                System.out.println("preferredneighbours before send unchoke");
+                //System.out.println("preferredneighbours before send unchoke");
                 // send unchoke message to all selected peers
                 for(int selectedPeer: selectedPeers) {
-                    System.out.println("num of selected peers: " + selectedPeers.size());
+                    //System.out.println("num of selected peers: " + selectedPeers.size());
                     if(prevUnchokedPeers.contains(selectedPeer)) {
                         continue;
                     }
-                    System.out.println("before gen unchoke");
+                    //System.out.println("before gen unchoke");
                     try {
                         byte[] unchokeMessage = MessageFactory.genUnchokeMessage();
                         // Socket tempSocket = _connectedPeers.get(selectedPeer)._socket;
@@ -233,10 +234,9 @@ and stop sending pieces. */
                         e.printStackTrace();
                     }
                 }
-                System.out.println("preferredneighbours before send choke");
+                //System.out.println("preferredneighbours before send choke");
                 // send choked messages
                 for(int chokedPeer : _chokedPeers) {
-                    System.out.println("num of choked peers: " + _chokedPeers.size());
                     try {
                         byte[] chokeMessage = MessageFactory.genChokeMessage();
                         // Socket tempSocket = _connectedPeers.get(chokedPeer)._socket;
@@ -250,7 +250,7 @@ and stop sending pieces. */
                         e.printStackTrace();
                     }
                 }
-
+                
                 Logger.logChangePreferredNeighbors(_id, Arrays.asList(interestedPeers.toArray(new Integer[selectedPeers.size()])));
             }
             
@@ -291,7 +291,6 @@ and stop sending pieces. */
                 neighborsToUnchoke.add(peer);
             }
         }
-        
         if (!neighborsToUnchoke.isEmpty()) {
             Random rand = new Random();
             int peerToUnchoke = neighborsToUnchoke.get(rand.nextInt(neighborsToUnchoke.size()));
@@ -302,7 +301,6 @@ and stop sending pieces. */
                 send(MessageFactory.genChokeMessage(), MessagingService._outputStream, _currentOptimisticallyUnchokedPeer);
             }
             _currentOptimisticallyUnchokedPeer = peerToUnchoke;
-            System.out.println("New unchoked peer is " + peerToUnchoke);
             _chokedPeers.remove(peerToUnchoke);
             _unchokedPeers.add(peerToUnchoke);
             Logger.logChangeOptimisticallyUnchokedNeighbor(_id, peerToUnchoke);

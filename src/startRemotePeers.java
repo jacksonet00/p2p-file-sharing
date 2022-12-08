@@ -8,8 +8,8 @@ public class startRemotePeers {
     // 1. Set the path to the src directory (ex. "~/Folder/Folder/p2p-file-sharing/src")
     //    - it is important to start this path with '~'
     // 2. Set the password as your uf password for canvas (DO NOT COMMIT TO GITHUB)
-    public static String PROJECT_PATH = "~/";
-    public static String UF_PASSWORD = "";
+    public static String PROJECT_PATH = "/cise/homes/shanemalone/CNT4007/p2p-file-sharing/src";
+    public static String UF_PASSWORD = "Ss386771!";
 
     public static void main(String[] args) throws IOException, InterruptedException, ExecutionException, TimeoutException {
         // 1. read PeerInfo.cfg
