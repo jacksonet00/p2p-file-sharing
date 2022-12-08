@@ -297,7 +297,7 @@ and stop sending pieces. */
             if (_currentOptimisticallyUnchokedPeer != -1) {
                 _chokedPeers.add(_currentOptimisticallyUnchokedPeer);
                 _unchokedPeers.remove(_currentOptimisticallyUnchokedPeer);
-                Logger.logChokeNeighbor(_id, _currentOptimisticallyUnchokedPeer);
+                Logger.logChokeNeighbor(_currentOptimisticallyUnchokedPeer, _id);
                 send(MessageFactory.genChokeMessage(), MessagingService._outputStream, _currentOptimisticallyUnchokedPeer);
             }
             _currentOptimisticallyUnchokedPeer = peerToUnchoke;
