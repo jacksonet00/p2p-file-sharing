@@ -83,9 +83,9 @@ public class MessagingService implements Runnable {
                                 s.append( bi.get( i ) == true ? 1: 0 );
                             }
 
-                            System.out.println("updated bitfield of " + _remotePeerId + "is now " + s );
+                            //System.out.println("updated bitfield of " + _remotePeerId + "is now " + s );
                             if(remotePeer._containsFile) {
-                                System.out.println("remote bitfield now contains file!");
+                                //System.out.println("remote bitfield now contains file!");
                             }
 
                             // determine whether it should send an ‘interested’ message to the neighbor
