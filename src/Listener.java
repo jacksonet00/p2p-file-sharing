@@ -23,7 +23,7 @@ public class Listener implements Runnable {
         try {
             serverSocket = new ServerSocket(_peer._portNumber);
 
-            while (true) {
+            while (_peer._isRunning) {
                 _socket = serverSocket.accept();
 
                 _outputStream = new ObjectOutputStream(_socket.getOutputStream());
@@ -34,6 +34,13 @@ public class Listener implements Runnable {
                 MessagingService messagingService = new MessagingService(_peer, _socket, _inputStream, _outputStream);
                 Thread serviceThread = new Thread(messagingService);
                 serviceThread.start();
+            }
+
+            if (!_peer._isRunning) {
+                _inputStream.close();
+                _outputStream.close();
+                _socket.close();
+                serverSocket.close();
             }
         } catch (IOException e) {
             e.printStackTrace();

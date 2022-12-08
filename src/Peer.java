@@ -1,11 +1,8 @@
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -17,11 +14,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.Set;
-import javax.imageio.IIOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.time.Instant;
 
 public class Peer {
@@ -44,6 +36,8 @@ public class Peer {
     Hashtable<Integer, ConnectionPair> _connectedPeers;
     // current pieces retrieved
     Hashtable<Integer, byte[]> _pieces;
+    // controls listener thread
+    boolean _isRunning;
 
     // general member variables
     // int _pieceCount;
@@ -72,6 +66,8 @@ public class Peer {
         _chokedPeers = new HashSet<Integer>();
         _unchokedPeers = new HashSet<Integer>();
         _currentOptimisticallyUnchokedPeer = -1;
+
+        _isRunning = true;
     }
 
     private void init() throws FileNotFoundException {
@@ -129,7 +125,7 @@ public class Peer {
     public void setRemoteBitfield(int remotePeerId, int pieceIndex, boolean exists) {
         Peer remotePeer =  _connectedPeers.get(remotePeerId)._peer;
         remotePeer._bitfield.set(pieceIndex, exists);
-        if(_bitfield.nextClearBit(0) >= _totalNumPieces) { // https://stackoverflow.com/questions/36308666/check-if-all-bits-in-bitset-are-set-to-true
+        if(remotePeer._bitfield.nextClearBit(0) >= _totalNumPieces) { // https://stackoverflow.com/questions/36308666/check-if-all-bits-in-bitset-are-set-to-true
             // Once bitfield is all true (all pieces have been received) then the peer now has the file
              remotePeer._containsFile = true;
         }
@@ -162,24 +158,32 @@ public class Peer {
 
         return pieceIndices.get(index);
     }
-    /*Each peer determines preferred neighbors every p seconds. Suppose that the unchoking
-interval is p. Then every p seconds, peer A reselects its preferred neighbors. To make
-the decision, peer A calculates the downloading rate from each of its neighbors,
-respectively, during the previous unchoking interval. Among neighbors that are interested
-in its data, peer A picks k neighbors that has fed its data at the highest rate. If more than
-two peers have the same rate, the tie should be broken randomly. Then it unchokes those
-preferred neighbors by sending ‘unchoke’ messages and it expects to receive ‘request’
-messages from them. If a preferred neighbor is already unchoked, then peer A does not
-have to send ‘unchoke’ message to it. All other neighbors previously unchoked but not
 
-selected as preferred neighbors at this time should be choked unless it is an optimistically
-unchoked neighbor. To choke those neighbors, peer A sends ‘choke’ messages to them
-and stop sending pieces. */
+    /*Each peer determines preferred neighbors every p seconds. Suppose that the unchoking
+    interval is p. Then every p seconds, peer A reselects its preferred neighbors. To make
+    the decision, peer A calculates the downloading rate from each of its neighbors,
+    respectively, during the previous unchoking interval. Among neighbors that are interested
+    in its data, peer A picks k neighbors that has fed its data at the highest rate. If more than
+    two peers have the same rate, the tie should be broken randomly. Then it unchokes those
+    preferred neighbors by sending ‘unchoke’ messages and it expects to receive ‘request’
+    messages from them. If a preferred neighbor is already unchoked, then peer A does not
+    have to send ‘unchoke’ message to it. All other neighbors previously unchoked but not
+
+    selected as preferred neighbors at this time should be choked unless it is an optimistically
+    unchoked neighbor. To choke those neighbors, peer A sends ‘choke’ messages to them
+    and stop sending pieces. */
     public void preferredNeighbors(Set<Integer> interestedPeers, Instant start) throws IOException{
         Random rand = new Random();
         
         // List<Integer> myList = new ArrayList<Integer>();
         // TODO: figure out why _containsFile doesn't return true for 1001
+        if (allConnectedPeersHaveFile()) {
+            System.out.println("All connected peers have file. Closing all connections.");
+            closeAllConnections();
+        }
+        System.out.println("Some peers still don't have file. Continuing with preferred neighbors.");
+
+                
         System.out.println(_containsFile);
         if (_containsFile) {
             // If peer A has a complete file, it determines  preferred neighbors randomly among those 
@@ -384,5 +388,37 @@ and stop sending pieces. */
                 
             }
         }
+    }
+
+    public void closeAllConnections() {
+        for(int tempRemotePeerId: _connectedPeers.keySet()) {
+            try {
+                ConnectionPair connectionPair = _connectedPeers.get(tempRemotePeerId);
+                connectionPair._inputStream.close();
+                connectionPair._outputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            _isRunning = false;
+        }
+        System.exit(0);
+    }
+
+    public boolean allConnectedPeersHaveFile() {
+        if (!_containsFile) {
+            System.out.println("Peer does not have file");
+            return false;
+        }
+        if (_peers.size() - 1 != _connectedPeers.size()) {
+            System.out.println("Not all peers are connected");
+            return false;
+        }
+        for(int tempRemotePeerId: _connectedPeers.keySet()) {
+            if (!_connectedPeers.get(tempRemotePeerId)._peer._containsFile) {
+                System.out.println("Peer " + tempRemotePeerId + " does not have file");
+                return false;
+            }
+        }
+        return true;
     }
 }
