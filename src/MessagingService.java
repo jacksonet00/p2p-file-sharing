@@ -73,7 +73,20 @@ public class MessagingService implements Runnable {
                             byte[] indexRaw = new byte[4];
                             System.arraycopy(rawMessage, 5, indexRaw, 0, 4);
                             int index = ByteBuffer.wrap(indexRaw).getInt();
-                            _peer._connectedPeers.get(_remotePeerId)._peer._bitfield.set(index, true);
+                            // _peer._connectedPeers.get(_remotePeerId)._peer._bitfield.set(index, true);
+                            _peer.setRemoteBitfield(_remotePeerId, index, true);
+                            Peer remotePeer = _peer._connectedPeers.get(_remotePeerId)._peer;
+                            BitSet bi = remotePeer._bitfield;
+                            StringBuilder s = new StringBuilder();
+                            for( int i = 0; i < bi.length();  i++ )
+                            {
+                                s.append( bi.get( i ) == true ? 1: 0 );
+                            }
+
+                            System.out.println("updated bitfield of " + _remotePeerId + "is now " + s );
+                            if(remotePeer._containsFile) {
+                                System.out.println("remote bitfield now contains file!");
+                            }
 
                             // determine whether it should send an ‘interested’ message to the neighbor
                             if (!_peer._bitfield.get(index)) {

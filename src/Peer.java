@@ -125,6 +125,16 @@ public class Peer {
             _containsFile = true;
         }
     }
+    
+    public void setRemoteBitfield(int remotePeerId, int pieceIndex, boolean exists) {
+        Peer remotePeer =  _connectedPeers.get(remotePeerId)._peer;
+        remotePeer._bitfield.set(pieceIndex, exists);
+        if(_bitfield.nextClearBit(0) >= _totalNumPieces) { // https://stackoverflow.com/questions/36308666/check-if-all-bits-in-bitset-are-set-to-true
+            // Once bitfield is all true (all pieces have been received) then the peer now has the file
+             remotePeer._containsFile = true;
+        }
+    }
+
     public BitSet getInterestedPieces(int remotePeerId) {
         BitSet piecesToRequest = (BitSet)_bitfield.clone();
         // Get pieces that you are interested in by (ALL PIECES BETWEEN YOU AND REMOTE) XOR (YOUR PIECES) = PIECES YOU NEED
